@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import TheWelcome from "@/components/TheWelcome.vue";
+import HelloWorld from "@/components/HelloWorld.vue";
+const alert = (value: number) => {
+  window.alert(value)
+}
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+    <HelloWorld title="hello world" message="123" @test-emit="alert" />
 </template>

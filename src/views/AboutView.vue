@@ -1,5 +1,5 @@
 <template>
-  <div class="about lg:items-center lg:flex lg:min-h-screen">
+  <div>
     <h1>This is an about page</h1>
     <div>123</div>
     <div>456</div>

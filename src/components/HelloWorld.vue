@@ -1,41 +1,33 @@
 <script setup lang="ts">
-defineProps<{
-  msg: string;
-}>();
+import { computed, ref } from "vue"
+
+// for defineProps, do not support import type/interface from other file
+interface Props {
+  title: string
+  message: string
+}
+
+const props = defineProps<Props>()
+const inputNumber = ref<number>(111)
+
+const emit = defineEmits<{
+  (e: "testEmit", value: number): void
+  (e: "update", value: string): void
+}>()
+
+const logging = (value: number) => {
+  console.log(value)
+}
 </script>
 
 <template>
-  <div class="greetings">
-    <h1 class="green">{{ msg }}</h1>
-    <h3>
-      You’ve successfully created a project with
-      <a href="https://vitejs.dev/" target="_blank" rel="noopener">Vite</a> +
-      <a href="https://vuejs.org/" target="_blank" rel="noopener">Vue 3</a>.
-      What's next?
-    </h3>
+  <div>
+    <div>{{ title }}</div>
+    <div class="green">{{ message }}</div>
+    <div @click="emit('testEmit', inputNumber)">{{ inputNumber }}</div>
+    <input id="inputNumber" class=" text-black" v-model="inputNumber" />
   </div>
 </template>
 
 <style scoped>
-h1 {
-  font-weight: 500;
-  font-size: 2.6rem;
-  top: -10px;
-}
-
-h3 {
-  font-size: 1.2rem;
-}
-
-.greetings h1,
-.greetings h3 {
-  text-align: center;
-}
-
-@media (min-width: 1024px) {
-  .greetings h1,
-  .greetings h3 {
-    text-align: left;
-  }
-}
 </style>
