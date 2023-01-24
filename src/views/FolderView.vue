@@ -1,69 +1,69 @@
 <script setup lang="ts">
-import { ref } from "vue"
+import DropArea from "@/components/DropArea.vue"
+import ImgGird from "@/components/ImgGrid.vue"
+import { useFolderStore } from "@/stores/folder"
+import type { FileObj } from "@/types"
+import { onMounted, ref } from "vue"
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from "vue-router"
 
-const showBorder = ref<boolean>(false)
-const fileList = ref<{ url: string; file: File }[]>([])
+const fileList = ref<FileObj[]>([])
+const route = useRoute()
+const folderStore = useFolderStore()
 
-const setBorder = (show: boolean) => {
-  console.log(show)
-  showBorder.value = show
-}
+onMounted(() => {
+  getFileFromStore(route.params.name as string)
+})
 
-const generateURL = (file: File) => {
-  let fileSrc = URL.createObjectURL(file)
-  setTimeout(() => {
-    URL.revokeObjectURL(fileSrc)
-  }, 1000)
-  return fileSrc
-}
-
-const upload = (e: DragEvent) => {
-  if (e && e.dataTransfer) {
-    try {
-      const files = e.dataTransfer.files
-      console.log(files)
-      const fileArr = fileList.value
-      for (var i = 0; i < files.length; i++) {
-        const imageURL = generateURL(files[i])
-        const fileObj = {
-          url: imageURL,
-          file: files[i],
-        }
-        fileArr.push(fileObj)
-      }
-
-      fileList.value = fileArr
-    } catch (e) {
-      console.warn(e)
-    } finally {
-      setBorder(false)
-    }
+onBeforeRouteLeave((to, from) => {
+  if (to.params.name !== from.params.name) {
+    // update folder to store
+    folderStore.setFolder(from.params.name as string, fileList.value)
   }
+})
+
+onBeforeRouteUpdate(async (to, from) => {
+  if (to.params.name !== from.params.name) {
+    // get folder from store
+    getFileFromStore(to.params.name as string)
+  }
+})
+
+const getFileFromStore = (folderName: string) => {
+  const folder = folderStore.getFolder(folderName)
+  fileList.value = folder
+}
+
+const setFileArr = (fileArr: FileObj[]) => {
+  let fileToBePush: FileObj[] = fileArr
+  // check if file exist
+  const existArr = []
+  fileArr.forEach((newFile) => {
+    const exist = fileList.value.find(
+      (old) => old.file.name === newFile.file.name
+    )
+    if (exist) {
+      existArr.push(newFile.file.name)
+    }
+  })
+
+  if (existArr.length > 0) {
+    // pop up alert to comfirm replace
+
+    fileToBePush = fileToBePush.filter(
+      (file) => !fileList.value.find((old) => old.file.name === file.file.name)
+    )
+  }
+
+  fileList.value.push(...fileToBePush)
 }
 </script>
 <template>
   <div class="h-full">
-    <h1 class="h-1/4">This is a folder page. folder: {{ $route.params.name }}</h1>
-    <div class="overflow-auto h-1/2">
-      <template v-for="(file, index) in fileList" :key="index">
-        <img :src="file.url" />
-      </template>
-    </div>
+    <div class="h-[4rem]">Folder: {{ $route.params.name }}</div>
 
-    <div class="flex justify-center items-center w-full h-[500px] ">
-      <div
-        @dragenter.prevent="() => setBorder(true)"
-        @dragover.prevent="() => setBorder(true)"
-        @dragleave.prevent="() => setBorder(false)"
-        @drop.prevent="upload"
-        class="drag-area p-4 h-1/2 w-1/2"
-        :class="{
-          'border-red-500': showBorder,
-          'border-dotted': showBorder,
-          'border-2': showBorder,
-        }"
-      ></div>
-    </div>
+    <DropArea @emit-file="setFileArr" class="h-[calc(100%-4rem)]">
+      <ImgGird :fileList="fileList" />
+    </DropArea>
   </div>
 </template>
 
