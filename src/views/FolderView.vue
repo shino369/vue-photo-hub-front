@@ -63,9 +63,14 @@ const setFileArr = (fileArr: FileObj[]) => {
 
 const onDotClick = () => {
   dotClicked.value = !dotClicked.value
+
+  if (!dotClicked.value) {
+    clearSelected()
+  }
 }
 
 const initSelect = (fileName: string) => {
+  dotClicked.value = true
   enabledSelect.value = true
   addToSelected(fileName)
 }
@@ -88,15 +93,17 @@ const onEditClick = () => {
 }
 
 const deleteSelected = () => {
-  const folderName = route.params.name as string
-  const newList = fileList.value.filter(
-    (f) => !selectedFileList.value.includes(f.file.name)
-  )
+  if (selectedFileList.value.length > 0) {
+    const folderName = route.params.name as string
+    const newList = fileList.value.filter(
+      (f) => !selectedFileList.value.includes(f.file.name)
+    )
 
-  folderStore.setFolder(folderName, newList)
-  getFileFromStore(folderName)
+    folderStore.setFolder(folderName, newList)
+    getFileFromStore(folderName)
 
-  clearSelected()
+    clearSelected()
+  }
 }
 
 const selectAll = () => {
@@ -113,9 +120,12 @@ const clearSelected = () => {
 }
 </script>
 <template>
-  <div class="h-full" :class="{
-    'bg-zinc-400': enabledSelect
-  }" >
+  <div
+    class="h-full transition-all"
+    :class="{
+      'bg-zinc-400': enabledSelect,
+    }"
+  >
     <div
       class="flex justify-end items-center overflow-hidden transition-transform"
     >
@@ -125,7 +135,7 @@ const clearSelected = () => {
           'w-0': !dotClicked,
           'px-4 mr-2': dotClicked,
           'w-[3.5rem]': dotClicked && !enabledSelect,
-          'w-[calc(100%-4rem)]': dotClicked && enabledSelect
+          'w-[calc(100%-4rem)]': dotClicked && enabledSelect,
         }"
       >
         <IconButton
@@ -135,16 +145,30 @@ const clearSelected = () => {
           class="cursor-pointer"
           icon-class-name="w-6 h-6 text-black"
         />
-        <IconButton
-          @click="deleteSelected"
-          name="trash"
-          class="cursor-pointer overflow-hidden transition-all"
+        <div
+          class="transition-all flex overflow-hidden"
           :class="{
             'w-0': !enabledSelect,
-            'w-6 mr-auto': enabledSelect,
+            'mr-auto': enabledSelect,
           }"
-          icon-class-name="w-6 h-6 text-black"
-        />
+        >
+          <IconButton
+            @click="deleteSelected"
+            name="trash"
+            class="cursor-pointer"
+            :class="{
+              'w-0': !enabledSelect,
+            }"
+            icon-class-name="w-6 h-6 text-black"
+          />
+          <div
+            v-if="enabledSelect && selectedFileList.length > 0 && dotClicked"
+            class="ml-2 text-ellipsis text-base whitespace-nowrap"
+          >
+            {{ selectedFileList.length }} item(s) selected
+          </div>
+        </div>
+
         <IconButton
           @click="selectAll"
           name="all"

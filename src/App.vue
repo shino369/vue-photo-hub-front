@@ -1,27 +1,18 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router"
 import { computed, onMounted, ref } from "vue"
-import { useFolderStore } from "@/stores/folder"
+// import { useFolderStore } from "@/stores/folder"
 import NavBar from "@/components/NavBar.vue"
 import { useSideBar } from "@/stores/sidebar"
 
-const folderStore = useFolderStore()
+// const folderStore = useFolderStore()
 const sideBarStore = useSideBar()
 const isSideBarShow = computed(() => sideBarStore.isSideBarShow)
-
-const folderArr = ["folder A", "folder B"]
-
-onMounted(() => {
-  const folderList = folderStore.getFolderList()
-  // if (!folderList || folderList.length === 0) {
-  //   folderStore.initFolderStore(folderArr)
-  // }
-})
 </script>
 
 <template>
   <div
-    class="main-container w-screen h-screen overflow-hidden md:px-4 text-base md:text-xl bg-slate-100"
+    class="main-container select-none w-screen h-screen overflow-hidden md:px-4 text-base md:text-xl bg-slate-100"
   >
     <NavBar />
     <div

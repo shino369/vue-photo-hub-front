@@ -106,13 +106,13 @@ const handleOnClick = (fileName: string) => {
           @touchstart="touchStart(file.file.name)"
           @touchend="stop"
           @touchcancel="stop"
-          class="img-wrapper flex items-center justify-center h-[8rem] md:h-[12rem] cursor-pointer select-none"
+          class="img-wrapper flex items-center justify-center h-[8rem] md:h-[12rem] cursor-pointer select-none transition-opacity"
           :class="{
           'opacity-20': enabledSelect && !selectedFileList.includes(file.file.name),
         }"
           >
           <img
-            class="max-w-full max-h-fulltransition-transform"
+            class="max-w-full max-h-full transition-transform"
             :class="{
               'group-hover:shadow-2xl': !enabledSelect,
               'group-hover:scale-110': !enabledSelect,
