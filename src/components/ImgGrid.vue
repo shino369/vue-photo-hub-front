@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FileObj } from "@/types"
-import { generateURL } from "@/utils/commonUtils";
-import { computed } from "vue";
+import { generateURL } from "@/utils/commonUtils"
+import { computed } from "vue"
 
 interface Props {
   fileList: FileObj[]
@@ -12,10 +12,9 @@ const props = defineProps<Props>()
 const withUrl = computed(() => {
   return props.fileList.map((file) => ({
     url: generateURL(file.file),
-    file: file.file
+    file: file.file,
   }))
 })
-
 </script>
 
 <template>
@@ -26,11 +25,14 @@ const withUrl = computed(() => {
       <div
         class="col-auto w-[6rem] md:w-[10rem] m-2 flex flex-col items-center h-fit justify-self-center"
       >
-        <img
-          class="h-[8rem] md:h-[12rem] hover:scale-110 transition-transform cursor-pointer select-none"
-          :src="file.url"
-          draggable="false"
-        />
+        <div class="img-wrapper flex items-center justify-center h-[8rem] md:h-[12rem]  cursor-pointer select-none">
+          <img
+            class="max-w-full max-h-full hover:scale-110 hover:shadow-2xl transition-transform"
+            :src="file.url"
+            draggable="false"
+          />
+        </div>
+
         <div :title="file.file.name" class="w-[inherit] truncate">
           {{ file.file.name }}
         </div>

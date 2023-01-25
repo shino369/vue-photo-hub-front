@@ -35,34 +35,33 @@ const upload = (e: DragEvent) => {
 }
 </script>
 <template>
-  <div class="flex justify-center items-center">
+  <div class="flex justify-center items-center relative">
     <div
       @dragenter.prevent="() => setBorder(true)"
-      class="drag-area m-2 md:m-4 h-[calc(100%-1rem)] md:h-[calc(100%-2rem)] w-[calc(100%-1rem)] md:w-[calc(100%-2rem)] overflow-y-auto overflow-x-hidden relative"
+      class="drag-area m-2 md:m-4 h-[calc(100%-1rem)] md:h-[calc(100%-2rem)] w-[calc(100%-1rem)] md:w-[calc(100%-2rem)] overflow-y-auto overflow-x-hidden"
     >
-      <div
-        @dragover.prevent="() => setBorder(true)"
-        @dragleave.prevent="() => setBorder(false)"
-        @drop.prevent="upload"
-        class="overlay-drag-area w-full h-full absolute z-20 flex"
-        :class="{
-          hidden: !showBorder,
-        }"
-      ></div>
-
-      <div
-        class="overlay-border-effect w-full h-full absolute bg-[rgba(255,255,255,0.5)] z-10 flex justify-center items-center"
-        :class="{
-          hidden: !showBorder,
-          'border-sky-900': showBorder,
-          'border-dashed': showBorder,
-          'border-4': showBorder,
-        }"
-      >
-        <div class="capitalize">drag your image here</div>
-      </div>
-
       <slot></slot>
+    </div>
+    <div
+      @dragover.prevent="() => setBorder(true)"
+      @dragleave.prevent="() => setBorder(false)"
+      @drop.prevent="upload"
+      class="overlay-drag-area w-full h-full absolute z-20 flex"
+      :class="{
+        hidden: !showBorder,
+      }"
+    ></div>
+
+    <div
+      class="overlay-border-effect w-full h-full absolute bg-[rgba(255,255,255,0.5)] z-10 flex justify-center items-center"
+      :class="{
+        hidden: !showBorder,
+        'border-sky-900': showBorder,
+        'border-dashed': showBorder,
+        'border-4': showBorder,
+      }"
+    >
+      <div class="capitalize bg-[rgba(255,255,255, 0.9)]">drag your image here</div>
     </div>
   </div>
 </template>

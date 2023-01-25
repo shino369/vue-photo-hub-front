@@ -11,11 +11,10 @@ export const useFolderStore = defineStore("folder", () => {
   }
 
   const initFolderStore = (folderArr: string[]) => {
-    const newFolderStructure:Folder = {}
     folderArr.forEach((folderName) => {
-      newFolderStructure[folderName] = []
+      folders.value[folderName] = []
     })
-    folders.value = newFolderStructure
+    return getFolderList()
   }
 
   const getFolderList = () => {

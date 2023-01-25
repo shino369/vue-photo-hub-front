@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { routes } from "@/router"
+import { useFolderStore } from "@/stores/folder"
 import { useSideBar } from "@/stores/sidebar"
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import { useRoute, RouterLink } from "vue-router"
 import IconButton from "./IconButton.vue"
 import IconClose from "./icons/Icon-close.vue"
@@ -17,6 +18,24 @@ defineProps<Props>()
 const currentRoute = useRoute()
 const sideBarStore = useSideBar()
 const isSideBarShow = computed(() => sideBarStore.isSideBarShow)
+const folderStore = useFolderStore()
+const showNewFolderInput = ref<boolean>(false)
+const newFolderName = ref<string>("")
+
+const addNewFolder = () => {
+  showNewFolderInput.value = true
+}
+const comfirmAddNewFolder = () => {
+  showNewFolderInput.value = false
+  if (newFolderName.value && newFolderName.value.trim().length > 0) {
+    folderStore.addNewFolder(newFolderName.value)
+    newFolderName.value = ""
+  }
+}
+const cancelAddNewFolder = () => {
+  showNewFolderInput.value = false
+  newFolderName.value = ""
+}
 </script>
 
 <template>
@@ -39,21 +58,65 @@ const isSideBarShow = computed(() => sideBarStore.isSideBarShow)
         <div v-if="route.name !== 'folder'" class="pb-4 flex">
           <RouterLink
             draggable="false"
-            class="w-full h-full px-4 py-2 bg-gray-400 text-white hover:opacity-80"
+            class="w-full h-full px-4 py-2 bg-gray-400 text-white hover:opacity-80 overflow-hidden text-ellipsis whitespace-nowrap"
             :class="{
               'bg-sky-900': currentRoute.name === route.name,
             }"
             :to="route.path"
-            >{{ route.name }} {{ isSideBarShow }}
+            >{{ route.name }}
           </RouterLink>
         </div>
       </template>
     </div>
     <div class="lower-section px-4 py-2">
-      <div class="pb-4 flex" v-for="(folder, index) in folders" :key="index">
+      <div class="flex justify-end items-center py-4">
+        <IconButton
+          v-if="!showNewFolderInput"
+          @click="addNewFolder"
+          name="plus"
+          class="cursor-pointer"
+          icon-class-name="w-6 h-6 text-white group-hover:opacity-80"
+        />
+        <IconButton
+          v-if="showNewFolderInput"
+          @click="comfirmAddNewFolder"
+          name="tick"
+          class="cursor-pointer"
+          icon-class-name="w-6 h-6 text-white group-hover:opacity-80"
+        />
+        <input
+          class="transition-all py-1"
+          :class="{
+            'w-0': !showNewFolderInput,
+            'px-2': showNewFolderInput,
+            'ml-2': showNewFolderInput,
+            'w-40': showNewFolderInput,
+          }"
+          v-model="newFolderName"
+          placeholder="new folder"
+        />
+        <IconButton
+          v-if="showNewFolderInput"
+          @click="cancelAddNewFolder"
+          name="close"
+          class="cursor-pointer ml-1"
+          icon-class-name="w-6 h-6 text-white group-hover:opacity-80"
+        />
+      </div>
+
+      <div
+        class="group pb-4 flex items-center"
+        v-for="(folder, index) in folders"
+        :key="index"
+      >
+        <IconButton
+          name="folder"
+          class="mr-2"
+          icon-class-name="w-8 h-8 text-white group-hover:opacity-80"
+        />
         <RouterLink
           draggable="false"
-          class="w-full h-full px-4 py-2 bg-gray-400 text-white hover:opacity-80"
+          class="w-full h-full px-4 py-2 bg-gray-400 text-white group-hover:opacity-80 overflow-hidden text-ellipsis whitespace-nowrap"
           :class="{
             'bg-sky-900':
               currentRoute.name === 'folder' &&
@@ -68,7 +131,7 @@ const isSideBarShow = computed(() => sideBarStore.isSideBarShow)
   </div>
   <div
     @click="sideBarStore.toggle(false)"
-    class="fixed top-0 left-0 h-full w-full max-w-[100vw] z-40"
+    class="fixed top-0 left-0 h-full w-full max-w-[100vw] z-40 backdrop-brightness-50"
     :class="{
       hidden: !isSideBarShow,
     }"

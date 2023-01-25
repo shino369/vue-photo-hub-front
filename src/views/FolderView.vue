@@ -59,9 +59,9 @@ const setFileArr = (fileArr: FileObj[]) => {
 </script>
 <template>
   <div class="h-full">
-    <div class="h-[4rem]">Folder: {{ $route.params.name }}</div>
 
-    <DropArea @emit-file="setFileArr" class="h-[calc(100%-4rem)]">
+
+    <DropArea @emit-file="setFileArr" class="h-full">
       <ImgGird :fileList="fileList" />
     </DropArea>
   </div>
