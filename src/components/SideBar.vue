@@ -26,7 +26,7 @@ const isSideBarShow = computed(() => sideBarStore.isSideBarShow)
       '-translate-x-full': !isSideBarShow,
     }"
   >
-    <div class="flex justify-end">
+    <div class="flex justify-end py-2">
       <IconButton
         @click="sideBarStore.toggle(false)"
         name="close"
@@ -34,7 +34,7 @@ const isSideBarShow = computed(() => sideBarStore.isSideBarShow)
         icon-class-name="w-8 h-8 text-white"
       />
     </div>
-    <div class="upper-section px-4 py-4">
+    <div class="upper-section px-4 py-2">
       <template v-for="(route, index) in routes" :key="index">
         <div v-if="route.name !== 'folder'" class="pb-4 flex">
           <RouterLink

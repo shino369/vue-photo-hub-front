@@ -16,7 +16,7 @@ const { toggle } = useSideBar()
 </script>
 
 <template>
-  <div class="h-[3rem] w-full flex items-center">
+  <div class="h-[4rem] w-full flex items-center">
     <IconButton
       @click="toggle(true)"
       name="menu"
