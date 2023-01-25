@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import { computed, ref } from "vue"
 import { routes } from "@/router"
 import { useFolderStore } from "@/stores/folder"
 import { useSideBar } from "@/stores/sidebar"
-import { computed, ref } from "vue"
 import { useRoute, RouterLink } from "vue-router"
-import IconButton from "./IconButton.vue"
-import IconClose from "./icons/Icon-close.vue"
+import IconButton from "@/components/IconButton.vue"
 
 interface Props {
   routes: {

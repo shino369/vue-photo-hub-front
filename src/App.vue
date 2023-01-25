@@ -13,9 +13,9 @@ const folderArr = ["folder A", "folder B"]
 
 onMounted(() => {
   const folderList = folderStore.getFolderList()
-  if (!folderList || folderList.length === 0) {
-    folderStore.initFolderStore(folderArr)
-  }
+  // if (!folderList || folderList.length === 0) {
+  //   folderStore.initFolderStore(folderArr)
+  // }
 })
 </script>
 

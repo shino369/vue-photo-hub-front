@@ -1,12 +1,23 @@
 <script setup lang="ts">
 import type { FileObj } from "@/types"
 import { generateURL } from "@/utils/commonUtils"
-import { computed } from "vue"
+import { computed, ref } from "vue"
+import IconButton from "./IconButton.vue"
 
 interface Props {
   fileList: FileObj[]
+  selectedFileList: string[]
+  enabledSelect: boolean
 }
 const props = defineProps<Props>()
+
+const interval = ref()
+const count = ref<number>(0)
+
+const emit = defineEmits<{
+  (e: "initSelect", value: string): void
+  (e: "itemSelect", value: string): void
+}>()
 
 // dynamically add blob to file object
 const withUrl = computed(() => {
@@ -15,6 +26,53 @@ const withUrl = computed(() => {
     file: file.file,
   }))
 })
+
+const touchStart = (fileName: string) => {
+  if (props.enabledSelect) {
+    return
+  }
+  if (!interval.value) {
+    interval.value = setInterval(() => {
+      count.value++
+      if (count.value > 8) {
+        emit("initSelect", fileName)
+        stop()
+      }
+    }, 100)
+  }
+}
+const start = (fileName: string) => {
+  if (props.enabledSelect) {
+    handleOnClick(fileName)
+  } else {
+    if (!interval.value) {
+      console.log("trigger")
+      interval.value = setInterval(() => {
+        count.value++
+        if (count.value > 8) {
+          emit("initSelect", fileName)
+          stop()
+          count.value = 0
+        }
+      }, 100)
+    }
+  }
+}
+
+const stop = () => {
+  if (props.enabledSelect) {
+    return
+  }
+  clearInterval(interval.value)
+  interval.value = null
+  count.value = 0
+}
+
+const handleOnClick = (fileName: string) => {
+  if (props.enabledSelect) {
+    emit("itemSelect", fileName)
+  }
+}
 </script>
 
 <template>
@@ -23,11 +81,42 @@ const withUrl = computed(() => {
   >
     <template v-for="(file, index) in withUrl" :key="index">
       <div
-        class="col-auto w-[6rem] md:w-[10rem] m-2 flex flex-col items-center h-fit justify-self-center"
+        class="group col-auto w-[6rem] md:w-[10rem] m-2 flex flex-col items-center h-fit justify-self-center relative"
       >
-        <div class="img-wrapper flex items-center justify-center h-[8rem] md:h-[12rem]  cursor-pointer select-none">
+        <div
+          @mousedown="start(file.file.name)"
+          class="absolute w-full h-full flex justify-center items-end z-20 cursor-pointer"
+          :class="{
+            hidden: !selectedFileList.includes(file.file.name),
+          }"
+        ></div>
+        <IconButton
+          name="selected"
+          class="absolute z-10 right-0"
+          :class="{
+            hidden: !selectedFileList.includes(file.file.name),
+          }"
+          icon-class-name="w-6 h-6 text-black"
+        />
+
+        <div
+          @mousedown="start(file.file.name)"
+          @mouseleave="stop"
+          @mouseup="stop"
+          @touchstart="touchStart(file.file.name)"
+          @touchend="stop"
+          @touchcancel="stop"
+          class="img-wrapper flex items-center justify-center h-[8rem] md:h-[12rem] cursor-pointer select-none"
+          :class="{
+          'opacity-20': enabledSelect && !selectedFileList.includes(file.file.name),
+        }"
+          >
           <img
-            class="max-w-full max-h-full hover:scale-110 hover:shadow-2xl transition-transform"
+            class="max-w-full max-h-fulltransition-transform"
+            :class="{
+              'group-hover:shadow-2xl': !enabledSelect,
+              'group-hover:scale-110': !enabledSelect,
+            }"
             :src="file.url"
             draggable="false"
           />

@@ -2,7 +2,7 @@ import { ref } from "vue"
 import { defineStore } from "pinia"
 import type { FileObj, Folder } from "@/types"
 
-export const useFolderStore = defineStore("folder", () => {
+export const useFolderStore = defineStore("folders", () => {
   const folders = ref<Folder>({})
 
   const getFolder = (folderName: string) => {
@@ -18,7 +18,8 @@ export const useFolderStore = defineStore("folder", () => {
   }
 
   const getFolderList = () => {
-    return Object.keys(folders.value)
+    const list = Object.keys(folders.value)
+    return list
   }
 
   const addNewFolder = (folderName: string) => {
@@ -48,6 +49,7 @@ export const useFolderStore = defineStore("folder", () => {
   }
 
   return {
+    folders,
     getFolder,
     getFolderList,
     initFolderStore,
