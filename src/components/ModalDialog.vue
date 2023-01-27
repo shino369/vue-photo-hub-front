@@ -30,6 +30,7 @@ watch(
   <template v-for="(modal, index) in modalStack" :key="index">
     <!--backdrop area-->
     <div
+      @click="modal.type === 'popup' && modalStore.close()"
       :class="`fixed w-full h-full top-0 left-0 ${
         modal.type === 'modal'
           ? ' bg-[rgba(0,0,0,0.9)]'
