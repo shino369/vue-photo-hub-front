@@ -1,9 +1,21 @@
 import { ref } from "vue"
 import { defineStore } from "pinia"
-import type { FileObj, Folder } from "@/types"
+import type { FileObj, Folder, OrderType, SortType } from "@/types"
 
 export const useFolderStore = defineStore("folders", () => {
   const folders = ref<Folder>({})
+  const sortBy = ref<SortType>("lastModified")
+  const orderBy = ref<OrderType>("desc")
+
+  const setSort = (folderName: string, type: SortType) => {
+    sortBy.value = type
+    folders.value[folderName] = sortList(folders.value[folderName])
+  }
+
+  const setOrder = (folderName: string, type: OrderType) => {
+    orderBy.value = type
+    folders.value[folderName] = sortList(folders.value[folderName])
+  }
 
   const getFolder = (folderName: string) => {
     const folder = folders.value
@@ -19,6 +31,37 @@ export const useFolderStore = defineStore("folders", () => {
     return folder[folderName].length
   }
 
+  const sortList = (files: FileObj[]) => {
+    console.log("start sorting")
+    switch (sortBy.value) {
+      case "name":
+        files.sort((a, b) =>
+          orderBy.value === "desc"
+            ? b.file.name.localeCompare(a.file.name)
+            : a.file.name.localeCompare(b.file.name)
+        )
+        break
+      case "size":
+        files.sort((a, b) =>
+          orderBy.value === "desc"
+            ? b.file.size - a.file.size
+            : a.file.size - b.file.size
+        )
+        break
+      case "lastModified":
+      default:
+        console.log("sorting")
+        files.sort((a, b) =>
+          orderBy.value === "desc"
+            ? b.file.lastModified - a.file.lastModified
+            : a.file.lastModified - b.file.lastModified
+        )
+        break
+    }
+
+    return files
+  }
+
   const getSection = (
     folderName: string,
     offset: number,
@@ -27,11 +70,11 @@ export const useFolderStore = defineStore("folders", () => {
   ) => {
     const folder = searchName
       ? folders.value[folderName].filter((file) =>
-          file.file.name.includes(searchName)
+          file.file.name
+            .toLocaleLowerCase()
+            .includes(searchName.toLocaleLowerCase())
         )
-      : folders.value[folderName].sort(
-          (a, b) => b.file.lastModified - a.file.lastModified
-        )
+      : folders.value[folderName]
 
     let end = offset + limit
     const start = offset
@@ -51,15 +94,17 @@ export const useFolderStore = defineStore("folders", () => {
   }
 
   const setFolder = (folderName: string, newFiles: FileObj[]) => {
-    folders.value[folderName] = newFiles
+    folders.value[folderName] = sortList(newFiles)
   }
 
   const addFile = (folderName: string, file: FileObj) => {
     folders.value[folderName].push(file)
+    folders.value[folderName] = sortList(folders.value[folderName])
   }
 
   const addFiles = (folderName: string, files: FileObj[]) => {
     folders.value[folderName].push(...files)
+    folders.value[folderName] = sortList(folders.value[folderName])
   }
 
   const renameFile = (folderName: string, oldName: string, newName: string) => {
@@ -73,6 +118,11 @@ export const useFolderStore = defineStore("folders", () => {
         { type: folders.value[folderName][itemIndex].file.type }
       )
     }
+  }
+
+  const renameFolder = (oldFolderName: string, newFolderName: string) => {
+    folders.value[newFolderName] = folders.value[oldFolderName]
+    delete folders.value[oldFolderName]
   }
 
   const removeFile = (folderName: string, name: string) => {
@@ -113,6 +163,10 @@ export const useFolderStore = defineStore("folders", () => {
 
   return {
     folders,
+    sortBy,
+    orderBy,
+    setSort,
+    setOrder,
     checkExist,
     getFolder,
     getSection,
@@ -127,5 +181,6 @@ export const useFolderStore = defineStore("folders", () => {
     removeFile,
     removeFiles,
     renameFile,
+    renameFolder,
   }
 })

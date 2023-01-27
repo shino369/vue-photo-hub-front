@@ -2,7 +2,7 @@
 import { useLoading } from "@/stores/loading"
 import type { FileObj } from "@/types"
 import _ from "lodash"
-import { computed, ref, watch } from "vue"
+import { computed, ref } from "vue"
 import IconButton from "./IconButton.vue"
 
 const showBorder = ref<boolean>(false)
@@ -11,12 +11,6 @@ const loadingStore = useLoading()
 
 const isPageLoading = computed(() => loadingStore.isLoading)
 
-watch(
-  () => isPageLoading,
-  (newVal, oldVal) => {
-    console.log(newVal)
-  }
-)
 
 const emit = defineEmits<{
   (e: "emitFile", file: FileObj[]): void

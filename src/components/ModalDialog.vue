@@ -31,9 +31,13 @@ watch(
     <!--backdrop area-->
     <div
       :class="`fixed w-full h-full top-0 left-0 ${
-        modal.type === 'modal' ? ' bg-[rgba(0,0,0,0.9)]' : ''
+        modal.type === 'modal'
+          ? ' bg-[rgba(0,0,0,0.9)]'
+          : ' bg-[rgba(0,0,0,0.5)]'
       } flex justify-center items-center transition-transform ${
-        readyStack.length !== modalStack.length ? ' translate-y-full' : ''
+        readyStack.length !== modalStack.length && modal.type === 'modal'
+          ? ' translate-y-full'
+          : ''
       }`"
       :style="{
         zIndex: 100 + index,
@@ -41,6 +45,11 @@ watch(
     >
       <!--modal area-->
       <component
+        class="transition-transform"
+        :class="{
+          'scale-0':
+            readyStack.length !== modalStack.length && modal.type === 'popup',
+        }"
         :is="modal.component"
         :detail="modal.detail"
         :onCloseClick="modalStore.close"

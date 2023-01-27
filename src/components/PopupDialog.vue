@@ -11,7 +11,7 @@ const props = defineProps<Props>()
 </script>
 
 <template>
-  <div class="w-[30rem] p-4 bg-white shadow-sm shadow-slate-200 ">
+  <div class="w-[30rem] p-4 bg-white shadow-sm shadow-slate-200">
     <div
       class="flex justify-between pb-2 items-center border-b border-slate-200"
     >
@@ -23,7 +23,15 @@ const props = defineProps<Props>()
         icon-class-name="h-5 w-5 text-black"
       />
     </div>
-    <div class="py-4 text-base">{{ detail.content }}</div>
+    <div class="py-4 text-base">
+      {{ detail.content }}
+      <input
+        class="border rounded-sm w-full px-4 border-slate-400"
+        v-if="detail.inputValue !== undefined"
+        :value="detail.inputValue"
+        @input="detail.onInputChange"
+      />
+    </div>
     <div class="flex justify-end">
       <button
         class="flex items-end ml-4"

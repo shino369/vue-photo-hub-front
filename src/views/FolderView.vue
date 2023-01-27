@@ -8,7 +8,7 @@ import { useLoading } from "@/stores/loading"
 import { useModal } from "@/stores/modal"
 import type { FileObj } from "@/types"
 import _ from "lodash"
-import { onMounted, ref, shallowRef } from "vue"
+import { onMounted, ref, shallowRef, computed } from "vue"
 import { onBeforeRouteUpdate, useRoute } from "vue-router"
 
 /* ****************state***************** */
@@ -30,6 +30,10 @@ const modal = useModal()
 const route = useRoute()
 const folderStore = useFolderStore()
 const { setLoading } = useLoading()
+const loadingStore = useLoading()
+
+const sortBy = computed(() => folderStore.sortBy)
+const orderBy = computed(() => folderStore.orderBy)
 
 onMounted(() => {
   setLoading(true)
@@ -116,8 +120,15 @@ const onSetFileArr = (fileArr: FileObj[]) => {
     )
   }
 
-  fileList.value.push(...fileToBePush)
   folderStore.addFiles(currentFolder.value, fileToBePush)
+  offset.value = 0
+  const { data, size } = folderStore.getSection(
+    currentFolder.value,
+    offset.value,
+    limit.value
+  )
+  fileList.value = data
+  totalSize.value = size
 }
 
 const onInitSelect = (fileName: string) => {
@@ -233,6 +244,30 @@ const search = (e: Event) => {
   }
 }
 
+const handleFilesUpload = async (e: Event) => {
+  if (e && e.target) {
+    loadingStore.setLoading(true)
+    const fileArr: FileObj[] = []
+    try {
+      const files = (e.target as HTMLInputElement).files
+
+      if (files && files.length > 0) {
+        for (var i = 0; i < files.length; i++) {
+          const fileObj = {
+            file: files[i],
+          }
+          fileArr.push(fileObj)
+        }
+      }
+    } catch (e) {
+      console.warn(e)
+    } finally {
+      onSetFileArr(fileArr)
+      loadingStore.setLoading(false)
+    }
+  }
+}
+
 const onDebouncedSearch = _.debounce(search, 500)
 </script>
 <template>
@@ -273,12 +308,21 @@ const onDebouncedSearch = _.debounce(search, 500)
           class="cursor-pointer mr-4"
           icon-class-name="w-6 h-6 text-black"
         />
-        <IconButton
-          v-if="!enabledSelect"
-          name="upload"
-          class="cursor-pointer mr-4"
-          icon-class-name="w-6 h-6 text-black"
+
+        <input
+          multiple
+          type="file"
+          id="img-upload"
+          class="hidden"
+          @change="handleFilesUpload"
         />
+        <label
+          for="img-upload"
+          class="cursor-pointer mr-4"
+          v-if="!enabledSelect"
+        >
+          <IconButton name="upload" icon-class-name="w-6 h-6 text-black" />
+        </label>
         <IconButton
           v-if="!enabledSelect"
           name="download"

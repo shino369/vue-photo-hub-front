@@ -3,9 +3,8 @@ export interface FileObj {
   file: File
 }
 
-
 export interface Folder {
-  [key:string]: FileObj[]
+  [key: string]: FileObj[]
 }
 
 export interface ActionBtn {
@@ -16,6 +15,8 @@ export interface ActionBtn {
 }
 
 export interface ModalDetail {
+  inputValue?: string
+  onInputChange? (e: Event): void
   header?: string
   headerClass?: string
   content: any
@@ -28,6 +29,9 @@ export interface ModalDetail {
 export interface ModalObject {
   detail: ModalDetail
   component: any
-  type: 'modal' | 'popup'
-  onClose(): void       // action will fire after close()
+  type: "modal" | "popup"
+  onClose(): void // action will fire after close()
 }
+
+export type SortType = "lastModified" | "name" | "size"
+export type OrderType = "desc" | "asc"
