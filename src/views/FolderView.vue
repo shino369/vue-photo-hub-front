@@ -213,7 +213,9 @@ const onDebouncedSearch = _.debounce(search, 500)
     <div
       class="flex justify-end items-center overflow-hidden transition-transform"
     >
-      <div class="text-sm md:text-base whitespace-nowrap mr-auto capitalize pr-2">
+      <div
+        class="text-sm md:text-base whitespace-nowrap mr-auto capitalize pr-2"
+      >
         total: {{ totalSize }}
       </div>
       <div
@@ -229,13 +231,19 @@ const onDebouncedSearch = _.debounce(search, 500)
         <input
           v-if="!enabledSelect"
           @input="onDebouncedSearch"
-          class="mx-2 w-[10rem] text-base px-2"
+          class="mx-2 w-[7rem] text-base px-2"
         />
         <IconButton
           v-if="!enabledSelect"
           @click="onEditClick"
           name="edit"
-          class="cursor-pointer mr-2"
+          class="cursor-pointer mr-4"
+          icon-class-name="w-6 h-6 text-black"
+        />
+        <IconButton
+          v-if="!enabledSelect"
+          name="upload"
+          class="cursor-pointer mr-4"
           icon-class-name="w-6 h-6 text-black"
         />
         <IconButton

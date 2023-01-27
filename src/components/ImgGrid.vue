@@ -127,6 +127,7 @@ const onModalOpen = (file: FileObj) => {
               'group-hover:scale-110': !enabledSelect,
             }"
             :src="file.url"
+            draggable="false"
           />
         </div>
 

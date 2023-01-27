@@ -10,6 +10,10 @@ export const useFolderStore = defineStore("folders", () => {
     return folder[folderName]
   }
 
+  const checkExist = (folderName: string, fileName: string) => {
+    return folders.value[folderName].findIndex((i) => i.file.name === fileName)
+  }
+
   const getFileLength = (folderName: string) => {
     const folder = folders.value
     return folder[folderName].length
@@ -32,7 +36,7 @@ export const useFolderStore = defineStore("folders", () => {
     if (limit > folder.length) {
       end = offset + folder.length
     }
-    return {data: folder.slice(start, end), size: folder.length}
+    return { data: folder.slice(start, end), size: folder.length }
   }
 
   const getFolderList = () => {
@@ -54,6 +58,19 @@ export const useFolderStore = defineStore("folders", () => {
 
   const addFiles = (folderName: string, files: FileObj[]) => {
     folders.value[folderName].push(...files)
+  }
+
+  const renameFile = (folderName: string, oldName: string, newName: string) => {
+    const itemIndex = folders.value[folderName].findIndex(
+      (i) => i.file.name === oldName
+    )
+    if (itemIndex > -1) {
+      folders.value[folderName][itemIndex].file = new File(
+        [folders.value[folderName][itemIndex].file],
+        newName,
+        { type: folders.value[folderName][itemIndex].file.type }
+      )
+    }
   }
 
   const removeFile = (folderName: string, name: string) => {
@@ -94,6 +111,7 @@ export const useFolderStore = defineStore("folders", () => {
 
   return {
     folders,
+    checkExist,
     getFolder,
     getSection,
     getFileLength,
@@ -106,5 +124,6 @@ export const useFolderStore = defineStore("folders", () => {
     addFiles,
     removeFile,
     removeFiles,
+    renameFile,
   }
 })
