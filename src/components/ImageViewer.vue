@@ -36,22 +36,24 @@ onMounted(() => {
 
 const withUrl = computed(() => {
   return {
-    url: generateURL(props.detail.content.file),
+    // allow right click save
+    url: generateURL(props.detail.content.file, false),
     file: props.detail.content.file,
   }
 })
 
 const handleClose = () => {
-//   isModalReady.value = false
-//   setTimeout(() => {
-    props.onCloseClick()
-//   }, 150)
+  URL.revokeObjectURL(withUrl.value.url)
+  //   isModalReady.value = false
+  //   setTimeout(() => {
+  props.onCloseClick()
+  //   }, 150)
 }
 </script>
 
 <template>
   <div
-    class="w-full h-full flex flex-col text-slate-300 transition-transform"
+    class="w-full h-full flex flex-col text-slate-300 transition-transform select-text"
     :class="{
       'scale-0': !isModalReady,
     }"

@@ -1,13 +1,18 @@
 import { useSideBar } from "@/stores/sidebar"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 
-export const generateURL = (file: File) => {
+export const generateURL = (file: File, revoke: boolean = true) => {
   const fileSrc = URL.createObjectURL(file)
-  setTimeout(() => {
-    URL.revokeObjectURL(fileSrc)
-  }, 1000)
+
+  if(revoke) {
+    setTimeout(() => {
+      URL.revokeObjectURL(fileSrc)
+    }, 1000)
+  }
+
   return fileSrc
 }
+
 
 
 export const collapseSideBar = () => {
