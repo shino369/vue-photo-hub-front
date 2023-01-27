@@ -121,6 +121,7 @@ const onModalOpen = (file: FileObj) => {
           }"
         >
           <img
+            @contextmenu.prevent="() => false"
             class="max-w-full max-h-full transition-transform"
             :class="{
               'group-hover:shadow-2xl': !enabledSelect,

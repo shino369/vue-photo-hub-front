@@ -11,7 +11,7 @@ const isSideBarShow = computed(() => sideBarStore.isSideBarShow)
 
 <template>
   <div
-    class="main-container select-none w-screen h-screen overflow-hidden md:px-4 text-base md:text-xl bg-slate-100"
+    class="main-container text-black select-none w-screen h-screen overflow-hidden md:px-4 text-base md:text-xl bg-slate-100"
   >
     <NavBar />
     <div
