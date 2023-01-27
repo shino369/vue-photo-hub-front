@@ -6,6 +6,7 @@ import {
   type RouteLocation,
   type RouteRecordRaw,
 } from "vue-router"
+// import { collapseSideBar } from "@/utils/commonUtils"
 
 // also be used for App.vue
 export const routes = [
@@ -23,8 +24,8 @@ export const routes = [
   },
 ]
 
-const doSomething = (to: RouteLocation, from: RouteLocation) => {
-  console.log(to, from)
+const beforeEnterAction = (to: RouteLocation, from: RouteLocation) => {
+  // collapseSideBar()
 }
 
 // route mapping
@@ -33,14 +34,16 @@ const routeMap: {
 } = {
   home: {
     component: HomeView,
-    beforeEnter: [doSomething],
+    beforeEnter: [beforeEnterAction],
   },
   about: {
     component: () => import("@/views/AboutView.vue"),
+    beforeEnter: [beforeEnterAction],
   },
   folder: {
     component: () => import("@/views/FolderView.vue"),
-  }
+    beforeEnter: [beforeEnterAction],
+  },
 }
 
 const router = createRouter({

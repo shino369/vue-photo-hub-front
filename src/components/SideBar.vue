@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { routes } from "@/router"
-import { useFolderStore } from "@/stores/folder"
+import { useFolderStore } from "@/stores/folders"
 import { useSideBar } from "@/stores/sidebar"
 import { useRoute, RouterLink } from "vue-router"
 import IconButton from "@/components/IconButton.vue"
+import { collapseSideBar } from "@/utils/commonUtils"
 
 interface Props {
   routes: {
@@ -35,6 +36,12 @@ const cancelAddNewFolder = () => {
   showNewFolderInput.value = false
   newFolderName.value = ""
 }
+
+const collpase = () => {
+  setTimeout(() => {
+    collapseSideBar()
+  }, 100)
+}
 </script>
 
 <template>
@@ -56,6 +63,7 @@ const cancelAddNewFolder = () => {
       <template v-for="(route, index) in routes" :key="index">
         <div v-if="route.name !== 'folder'" class="pb-4 flex">
           <RouterLink
+            @click="collpase"
             draggable="false"
             class="w-full h-full px-4 py-2 bg-gray-400 text-white hover:opacity-80 overflow-hidden text-ellipsis whitespace-nowrap"
             :class="{
@@ -114,6 +122,7 @@ const cancelAddNewFolder = () => {
           icon-class-name="w-8 h-8 text-white group-hover:opacity-80"
         />
         <RouterLink
+          @click="collpase"
           draggable="false"
           class="w-full h-full px-4 py-2 bg-gray-400 text-white group-hover:opacity-80 overflow-hidden text-ellipsis whitespace-nowrap"
           :class="{

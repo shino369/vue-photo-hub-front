@@ -46,7 +46,6 @@ const start = (fileName: string) => {
     handleOnClick(fileName)
   } else {
     if (!interval.value) {
-      console.log("trigger")
       interval.value = setInterval(() => {
         count.value++
         if (count.value > 8) {
@@ -90,14 +89,6 @@ const handleOnClick = (fileName: string) => {
             hidden: !selectedFileList.includes(file.file.name),
           }"
         ></div>
-        <IconButton
-          name="selected"
-          class="absolute z-10 right-0"
-          :class="{
-            hidden: !selectedFileList.includes(file.file.name),
-          }"
-          icon-class-name="w-6 h-6 text-black"
-        />
 
         <div
           @mousedown="start(file.file.name)"

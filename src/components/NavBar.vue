@@ -5,7 +5,7 @@ import { routes } from "@/router/index"
 import IconButton from "./IconButton.vue"
 import SideBar from "./SideBar.vue"
 import { computed } from "vue"
-import { useFolderStore } from "@/stores/folder"
+import { useFolderStore } from "@/stores/folders"
 
 const folderStore = useFolderStore()
 const folders = computed(() => folderStore.getFolderList())

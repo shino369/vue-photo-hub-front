@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router"
-import { computed, onMounted, ref } from "vue"
-// import { useFolderStore } from "@/stores/folder"
+import { computed } from "vue"
 import NavBar from "@/components/NavBar.vue"
 import { useSideBar } from "@/stores/sidebar"
 
-// const folderStore = useFolderStore()
 const sideBarStore = useSideBar()
 const isSideBarShow = computed(() => sideBarStore.isSideBarShow)
 </script>

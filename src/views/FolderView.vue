@@ -2,42 +2,96 @@
 import DropArea from "@/components/DropArea.vue"
 import IconButton from "@/components/IconButton.vue"
 import ImgGird from "@/components/ImgGrid.vue"
-import { useFolderStore } from "@/stores/folder"
+import { useFolderStore } from "@/stores/folders"
+import { useLoading } from "@/stores/loading"
 import type { FileObj } from "@/types"
+import _ from "lodash"
 import { onMounted, ref } from "vue"
-import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from "vue-router"
+import { onBeforeRouteUpdate, useRoute } from "vue-router"
+
+/* ****************state***************** */
 
 const fileList = ref<FileObj[]>([])
+const tempFileList = ref<FileObj[]>([])
 const selectedFileList = ref<string[]>([])
+const totalSize = ref<number>(0)
+const currentFolder = ref<string>("")
+const offset = ref<number>(0)
+const limit = ref<number>(50)
 const enabledSelect = ref<boolean>(false)
 const dotClicked = ref<boolean>(false)
+
+/* ****************store***************** */
+
 const route = useRoute()
 const folderStore = useFolderStore()
+const { setLoading } = useLoading()
 
 onMounted(() => {
+  setLoading(true)
   getFileFromStore(route.params.name as string)
-})
-
-onBeforeRouteLeave((to, from) => {
-  if (to.params.name !== from.params.name) {
-    // update folder to store
-    folderStore.setFolder(from.params.name as string, fileList.value)
-  }
+  setTimeout(() => {
+    setLoading(false)
+  }, 300)
 })
 
 onBeforeRouteUpdate(async (to, from) => {
   if (to.params.name !== from.params.name) {
+    setLoading(true)
+    // update folder to store
+    fileList.value = []
+
     // get folder from store
-    getFileFromStore(to.params.name as string)
+    setTimeout(() => {
+      getFileFromStore(to.params.name as string)
+      setLoading(false)
+    }, 300)
+    clearSelected()
   }
 })
 
+/* ****************event handler***************** */
+
 const getFileFromStore = (folderName: string) => {
-  const folder = folderStore.getFolder(folderName)
-  fileList.value = folder
+  currentFolder.value = folderName
+  offset.value = 0
+
+  const { data, size } = folderStore.getSection(
+    currentFolder.value,
+    offset.value,
+    limit.value
+  )
+  fileList.value = data
+  totalSize.value = size
+
+  if (fileList.value.length === totalSize.value) {
+    // already get all
+    offset.value = totalSize.value - 1
+  } else {
+    offset.value += limit.value
+  }
 }
 
-const setFileArr = (fileArr: FileObj[]) => {
+const onGetMoreFiles = () => {
+  if (fileList.value.length < totalSize.value) {
+    const { data, size } = folderStore.getSection(
+      currentFolder.value,
+      offset.value,
+      limit.value
+    )
+    fileList.value.push(...data)
+    totalSize.value = size
+
+    if (fileList.value.length === totalSize.value) {
+      // already get all
+      offset.value = totalSize.value - 1
+    } else {
+      offset.value += limit.value
+    }
+  }
+}
+
+const onSetFileArr = (fileArr: FileObj[]) => {
   let fileToBePush: FileObj[] = fileArr
   // check if file exist
   const existArr = []
@@ -59,6 +113,43 @@ const setFileArr = (fileArr: FileObj[]) => {
   }
 
   fileList.value.push(...fileToBePush)
+  folderStore.addFiles(currentFolder.value, fileToBePush)
+}
+
+const onInitSelect = (fileName: string) => {
+  dotClicked.value = true
+  enabledSelect.value = true
+  onAddToSelected(fileName)
+}
+
+const onAddToSelected = (fileName: string) => {
+  if (selectedFileList.value.find((f) => f === fileName)) {
+    selectedFileList.value = selectedFileList.value.filter(
+      (f) => f !== fileName
+    )
+  } else {
+    selectedFileList.value.push(fileName)
+  }
+}
+
+const onDeleteSelected = () => {
+  if (selectedFileList.value.length > 0) {
+    selectedFileList.value.forEach((name) => {
+      const itemIndex = fileList.value.findIndex((i) => i.file.name === name)
+      if (itemIndex > -1) {
+        fileList.value.splice(itemIndex, 1)
+      }
+    })
+
+    folderStore.removeFiles(currentFolder.value, selectedFileList.value)
+    clearSelected()
+  }
+}
+
+const clearSelected = () => {
+  dotClicked.value = false
+  enabledSelect.value = false
+  selectedFileList.value = []
 }
 
 const onDotClick = () => {
@@ -69,44 +160,15 @@ const onDotClick = () => {
   }
 }
 
-const initSelect = (fileName: string) => {
-  dotClicked.value = true
-  enabledSelect.value = true
-  addToSelected(fileName)
-}
-
-const addToSelected = (fileName: string) => {
-  if (selectedFileList.value.find((f) => f === fileName)) {
-    selectedFileList.value = selectedFileList.value.filter(
-      (f) => f !== fileName
-    )
-  } else {
-    selectedFileList.value.push(fileName)
-  }
-}
-
 const onEditClick = () => {
   enabledSelect.value = !enabledSelect.value
   if (!enabledSelect.value) {
-    clearSelected()
+    enabledSelect.value = false
+    selectedFileList.value = []
   }
 }
 
-const deleteSelected = () => {
-  if (selectedFileList.value.length > 0) {
-    const folderName = route.params.name as string
-    const newList = fileList.value.filter(
-      (f) => !selectedFileList.value.includes(f.file.name)
-    )
-
-    folderStore.setFolder(folderName, newList)
-    getFileFromStore(folderName)
-
-    clearSelected()
-  }
-}
-
-const selectAll = () => {
+const onSelectAll = () => {
   if (selectedFileList.value.length > 0) {
     selectedFileList.value = []
   } else {
@@ -114,10 +176,31 @@ const selectAll = () => {
   }
 }
 
-const clearSelected = () => {
-  enabledSelect.value = false
-  selectedFileList.value = []
+const search = (e: Event) => {
+  if (e.target) {
+    const target = e.target as HTMLInputElement
+
+    offset.value = 0
+    const { data, size } = folderStore.getSection(
+      currentFolder.value,
+      offset.value,
+      limit.value,
+      target.value
+    )
+    tempFileList.value = fileList.value
+    fileList.value = data
+    totalSize.value = size
+
+    if (fileList.value.length === totalSize.value) {
+      // already get all
+      offset.value = totalSize.value - 1
+    } else {
+      offset.value += limit.value
+    }
+  }
 }
+
+const onDebouncedSearch = _.debounce(search, 500)
 </script>
 <template>
   <div
@@ -126,34 +209,50 @@ const clearSelected = () => {
       'bg-zinc-400': enabledSelect,
     }"
   >
+    <!-- buttons groups -->
     <div
       class="flex justify-end items-center overflow-hidden transition-transform"
     >
+      <div class="text-sm md:text-base whitespace-nowrap mr-auto capitalize pr-2">
+        total: {{ totalSize }}
+      </div>
       <div
         class="rounded-lg py-1 flex justify-end bg-slate-100 overflow-hidden transition-all"
         :class="{
+          'bg-slate-300': !enabledSelect,
           'w-0': !dotClicked,
           'px-4 mr-2': dotClicked,
-          'w-[3.5rem]': dotClicked && !enabledSelect,
+          'w-[calc(50%-4rem)] min-w-[15rem] max-w-[20rem]': dotClicked && !enabledSelect,
           'w-[calc(100%-4rem)]': dotClicked && enabledSelect,
         }"
       >
+        <input
+          v-if="!enabledSelect"
+          @input="onDebouncedSearch"
+          class="mx-2 w-full text-base px-2"
+        />
         <IconButton
           v-if="!enabledSelect"
           @click="onEditClick"
           name="edit"
+          class="cursor-pointer mr-2"
+          icon-class-name="w-6 h-6 text-black"
+        />
+        <IconButton
+          v-if="!enabledSelect"
+          name="download"
           class="cursor-pointer"
           icon-class-name="w-6 h-6 text-black"
         />
         <div
-          class="transition-all flex overflow-hidden"
+          class="transition-all flex overflow-hidden items-center"
           :class="{
             'w-0': !enabledSelect,
             'mr-auto': enabledSelect,
           }"
         >
           <IconButton
-            @click="deleteSelected"
+            @click="onDeleteSelected"
             name="trash"
             class="cursor-pointer"
             :class="{
@@ -163,14 +262,14 @@ const clearSelected = () => {
           />
           <div
             v-if="enabledSelect && selectedFileList.length > 0 && dotClicked"
-            class="ml-2 text-ellipsis text-base whitespace-nowrap"
+            class="ml-2 text-ellipsis text-sm md:text-base whitespace-nowrap"
           >
             {{ selectedFileList.length }} item(s) selected
           </div>
         </div>
 
         <IconButton
-          @click="selectAll"
+          @click="onSelectAll"
           name="all"
           class="cursor-pointer overflow-hidden transition-all"
           :class="{
@@ -187,6 +286,7 @@ const clearSelected = () => {
           icon-class-name="w-6 h-6 text-black"
         />
       </div>
+
       <IconButton
         @click="onDotClick"
         name="threeDot"
@@ -195,11 +295,15 @@ const clearSelected = () => {
       />
     </div>
 
-    <DropArea @emit-file="setFileArr" class="h-[calc(100%-2rem)]">
+    <DropArea
+      @emit-file="onSetFileArr"
+      @get-more="onGetMoreFiles"
+      class="h-[calc(100%-2rem)]"
+    >
       <ImgGird
         :enabled-select="enabledSelect"
-        @item-select="addToSelected"
-        @init-select="initSelect"
+        @item-select="onAddToSelected"
+        @init-select="onInitSelect"
         :fileList="fileList"
         :selectedFileList="selectedFileList"
       />
