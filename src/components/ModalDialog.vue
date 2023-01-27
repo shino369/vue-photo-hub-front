@@ -13,7 +13,6 @@ watch(
       // push stack
       setTimeout(() => {
         readyStack.value.push(1)
-        console.log(readyStack.value.length)
       }, 150)
     } else {
       // pop stack
@@ -31,13 +30,17 @@ watch(
   <template v-for="(modal, index) in modalStack" :key="index">
     <!--backdrop area-->
     <div
-      :class="`fixed w-full h-full top-0 left-0 ${modal.type === 'modal' ? ' bg-[rgba(0,0,0,0.9)]' : ''} flex justify-center items-center transition-transform z-[${
-        100 + index
-      }]${readyStack.length !== modalStack.length ? ' translate-y-full' : '' }`"
+      :class="`fixed w-full h-full top-0 left-0 ${
+        modal.type === 'modal' ? ' bg-[rgba(0,0,0,0.9)]' : ''
+      } flex justify-center items-center transition-transform ${
+        readyStack.length !== modalStack.length ? ' translate-y-full' : ''
+      }`"
+      :style="{
+        zIndex: 100 + index,
+      }"
     >
       <!--modal area-->
       <component
-
         :is="modal.component"
         :detail="modal.detail"
         :onCloseClick="modalStore.close"

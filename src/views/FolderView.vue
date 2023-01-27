@@ -137,45 +137,46 @@ const onAddToSelected = (fileName: string) => {
 }
 
 const onDeleteSelected = () => {
-  modal.open({
-    detail: {
-      header: "delete",
-      content: "are you sure you want to delete?",
-      actionBtns: [
-        {
-          name: "cancel",
-          iconName: "close",
-          onClick: () => {
-            console.log("cancel!")
-            modal.close()
+  if (selectedFileList.value.length > 0) {
+    modal.open({
+      detail: {
+        header: "delete",
+        content: `Are you sure you want to delete ${selectedFileList.value.length} item(s)?`,
+        actionBtns: [
+          {
+            name: "cancel",
+            iconName: "close",
+            onClick: () => {
+              modal.close()
+            },
           },
-        },
-        {
-          name: "confirm",
-          iconName: "confirm",
-          onClick: () => {
-            console.log("confirm!")
-            modal.close()
+          {
+            name: "confirm",
+            iconName: "confirm",
+            onClick: () => {
+              confirmDelete()
+              modal.close()
+            },
           },
-        },
-      ],
-    },
-    component: shallowRef(PopupDialog),
-    onClose: () => {},
-    type: 'popup'
+        ],
+      },
+      component: shallowRef(PopupDialog),
+      onClose: () => {},
+      type: "popup",
+    })
+  }
+}
+
+const confirmDelete = () => {
+  selectedFileList.value.forEach((name) => {
+    const itemIndex = fileList.value.findIndex((i) => i.file.name === name)
+    if (itemIndex > -1) {
+      fileList.value.splice(itemIndex, 1)
+    }
   })
 
-  // if (selectedFileList.value.length > 0) {
-  //   selectedFileList.value.forEach((name) => {
-  //     const itemIndex = fileList.value.findIndex((i) => i.file.name === name)
-  //     if (itemIndex > -1) {
-  //       fileList.value.splice(itemIndex, 1)
-  //     }
-  //   })
-
-  //   folderStore.removeFiles(currentFolder.value, selectedFileList.value)
-  //   clearSelected()
-  // }
+  folderStore.removeFiles(currentFolder.value, selectedFileList.value)
+  clearSelected()
 }
 
 const clearSelected = () => {

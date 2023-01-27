@@ -11,11 +11,11 @@ const props = defineProps<Props>()
 </script>
 
 <template>
-  <div class="w-[30rem] p-4 bg-white shadow-sm shadow-slate-200 capitalize">
+  <div class="w-[30rem] p-4 bg-white shadow-sm shadow-slate-200 ">
     <div
       class="flex justify-between pb-2 items-center border-b border-slate-200"
     >
-      <div>{{ detail.header }}</div>
+      <div class="capitalize">{{ detail.header }}</div>
       <IconButton
         @click="onCloseClick"
         name="close"
