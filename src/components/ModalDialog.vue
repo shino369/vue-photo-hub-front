@@ -12,7 +12,7 @@ const modalStack = computed(() => modalStore.modalStack)
   <template v-for="(modal, index) in modalStack" :key="index">
     <!--backdrop area-->
     <div
-      :class="`fixed transition-all w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.9)] flex justify-center items-center z-[${
+      :class="`fixed w-full h-full top-0 left-0 bg-[rgba(0,0,0,0.9)] flex justify-center items-center z-[${
         100 + index
       }]`"
     >

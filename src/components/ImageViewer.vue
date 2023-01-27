@@ -27,12 +27,6 @@ const route = useRoute()
 
 const currentFolder = computed(() => route.params.name as string)
 
-onMounted(() => {
-  setTimeout(() => {
-    isModalReady.value = true
-  }, 150)
-})
-
 const withUrl = computed(() => {
   return {
     // allow right click save
@@ -47,6 +41,13 @@ const withUrl = computed(() => {
     },
   }
 })
+
+const onImgLoad = () => {
+  console.log("loaded")
+  setTimeout(() => {
+    isModalReady.value = true
+  }, 150)
+}
 
 const handleClose = () => {
   URL.revokeObjectURL(withUrl.value.url)
@@ -92,11 +93,22 @@ const onConfirm = () => {
     onEditClick(false)
   }
 }
+
+const download = () => {
+  const url = withUrl.value.url
+  const a = document.createElement("a")
+  document.body.appendChild(a)
+  a.setAttribute("style", "display: none")
+  a.href = url
+  a.download = withUrl.value.file.name
+  a.click()
+  a.remove() // remove the element
+}
 </script>
 
 <template>
   <div
-    class="w-full h-full flex flex-col text-slate-300 transition-transform select-text"
+    class="w-full h-full flex flex-col text-slate-300 custom-transition select-text"
     :class="{
       'scale-0': !isModalReady,
     }"
@@ -116,7 +128,11 @@ const onConfirm = () => {
     </div>
     <div class="flex-1 flex justify-center overflow-hidden">
       <div class="h-full overflow-hidden">
-        <img :src="withUrl.url" class="object-contain h-full" />
+        <img
+          :src="withUrl.url"
+          @load="onImgLoad"
+          class="object-contain h-full"
+        />
       </div>
     </div>
     <div class="flex justify-center py-6">
@@ -163,7 +179,15 @@ const onConfirm = () => {
         </div>
         <div class="flex flex-row border-b border-neutral-600 py-2">
           <div class="capitalize basis-2/5">size :</div>
-          <div class="basis-3/5">{{ withUrl.file.size }}</div>
+          <div class="basis-3/5 flex items-center">
+            {{ withUrl.file.size }}
+            <IconButton
+              @click="download"
+              name="download"
+              class="cursor-pointer"
+              icon-class-name="my-2 mx-4 h-5 w-5 text-white"
+            />
+          </div>
         </div>
         <div class="flex flex-row border-b border-neutral-600 py-2">
           <div class="capitalize basis-2/5">last modified :</div>
@@ -173,3 +197,9 @@ const onConfirm = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.custom-transition {
+  transition: all 300ms ease-in-out;
+}
+</style>
