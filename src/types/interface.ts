@@ -11,7 +11,7 @@ export interface Folder {
 export interface ActionBtn {
   name: string
   iconName: string
-  className: string
+  className?: string
   onClick(): void
 }
 
@@ -28,5 +28,6 @@ export interface ModalDetail {
 export interface ModalObject {
   detail: ModalDetail
   component: any
+  type: 'modal' | 'popup'
   onClose(): void       // action will fire after close()
 }

@@ -4,11 +4,13 @@ import { useRoute } from "vue-router"
 import { routes } from "@/router/index"
 import IconButton from "./IconButton.vue"
 import SideBar from "./SideBar.vue"
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import { useFolderStore } from "@/stores/folders"
 
 const folderStore = useFolderStore()
 const folders = computed(() => folderStore.getFolderList())
+
+const isEditing = ref<boolean>(false)
 
 const route = useRoute()
 const { toggle } = useSideBar()
@@ -29,9 +31,16 @@ const { toggle } = useSideBar()
       <div v-if="route.params.name" class="mx-2 font-normal text-gray-500">
         /
       </div>
-      <div class="text-ellipsis overflow-hidden">
+      <div v-if="!isEditing" class="text-ellipsis overflow-hidden">
         {{ route.params.name }}
       </div>
+      <input v-if="isEditing" />
+        
+      <!-- <IconButton
+        name="edit"
+        class="cursor-pointer ml-2"
+        icon-class-name="w-6 h-6 text-black"
+      /> -->
     </div>
   </div>
   <SideBar :routes="routes" :folders="folders" />

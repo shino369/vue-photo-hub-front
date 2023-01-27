@@ -29,7 +29,9 @@ export const useFolderStore = defineStore("folders", () => {
       ? folders.value[folderName].filter((file) =>
           file.file.name.includes(searchName)
         )
-      : folders.value[folderName]
+      : folders.value[folderName].sort(
+          (a, b) => b.file.lastModified - a.file.lastModified
+        )
 
     let end = offset + limit
     const start = offset
@@ -40,7 +42,7 @@ export const useFolderStore = defineStore("folders", () => {
   }
 
   const getFolderList = () => {
-    const list = Object.keys(folders.value)
+    const list = Object.keys(folders.value).sort()
     return list
   }
 

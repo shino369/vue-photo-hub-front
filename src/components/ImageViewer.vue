@@ -13,7 +13,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const isModalReady = ref<boolean>(false)
+// const isModalReady = ref<boolean>(false)
 const currentFileName = ref<string>(props.detail.content.file.name)
 const newFileName = ref<string>(props.detail.content.file.name)
 const isEditing = ref<boolean>(false)
@@ -42,12 +42,6 @@ const withUrl = computed(() => {
   }
 })
 
-const onImgLoad = () => {
-  console.log("loaded")
-  setTimeout(() => {
-    isModalReady.value = true
-  }, 150)
-}
 
 const handleClose = () => {
   URL.revokeObjectURL(withUrl.value.url)
@@ -107,12 +101,7 @@ const download = () => {
 </script>
 
 <template>
-  <div
-    class="w-full h-full flex flex-col text-slate-300 custom-transition select-text"
-    :class="{
-      'scale-0': !isModalReady,
-    }"
-  >
+  <div class="w-full h-full flex flex-col text-slate-300 select-text">
     <div
       class="w-100 flex mx-6 py-4 items-center justify-between border-b border-neutral-600 mb-4"
     >
@@ -128,11 +117,7 @@ const download = () => {
     </div>
     <div class="flex-1 flex justify-center overflow-hidden">
       <div class="h-full overflow-hidden">
-        <img
-          :src="withUrl.url"
-          @load="onImgLoad"
-          class="object-contain h-full"
-        />
+        <img :src="withUrl.url" class="object-contain h-full" />
       </div>
     </div>
     <div class="flex justify-center py-6">
@@ -198,8 +183,4 @@ const download = () => {
   </div>
 </template>
 
-<style scoped>
-.custom-transition {
-  transition: all 300ms ease-in-out;
-}
-</style>
+<style scoped></style>

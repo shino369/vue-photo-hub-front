@@ -84,8 +84,8 @@ const onModalOpen = (file: FileObj) => {
     },
     component: shallowRef(ImageViewer),
     onClose: () => {
-      console.log('close modal')
     },
+    type: 'modal'
   })
 }
 </script>

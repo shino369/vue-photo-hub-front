@@ -2,11 +2,13 @@
 import DropArea from "@/components/DropArea.vue"
 import IconButton from "@/components/IconButton.vue"
 import ImgGird from "@/components/ImgGrid.vue"
+import PopupDialog from "@/components/PopupDialog.vue"
 import { useFolderStore } from "@/stores/folders"
 import { useLoading } from "@/stores/loading"
+import { useModal } from "@/stores/modal"
 import type { FileObj } from "@/types"
 import _ from "lodash"
-import { onMounted, ref } from "vue"
+import { onMounted, ref, shallowRef } from "vue"
 import { onBeforeRouteUpdate, useRoute } from "vue-router"
 
 /* ****************state***************** */
@@ -20,6 +22,8 @@ const offset = ref<number>(0)
 const limit = ref<number>(50)
 const enabledSelect = ref<boolean>(false)
 const dotClicked = ref<boolean>(false)
+
+const modal = useModal()
 
 /* ****************store***************** */
 
@@ -133,17 +137,45 @@ const onAddToSelected = (fileName: string) => {
 }
 
 const onDeleteSelected = () => {
-  if (selectedFileList.value.length > 0) {
-    selectedFileList.value.forEach((name) => {
-      const itemIndex = fileList.value.findIndex((i) => i.file.name === name)
-      if (itemIndex > -1) {
-        fileList.value.splice(itemIndex, 1)
-      }
-    })
+  modal.open({
+    detail: {
+      header: "delete",
+      content: "are you sure you want to delete?",
+      actionBtns: [
+        {
+          name: "cancel",
+          iconName: "close",
+          onClick: () => {
+            console.log("cancel!")
+            modal.close()
+          },
+        },
+        {
+          name: "confirm",
+          iconName: "confirm",
+          onClick: () => {
+            console.log("confirm!")
+            modal.close()
+          },
+        },
+      ],
+    },
+    component: shallowRef(PopupDialog),
+    onClose: () => {},
+    type: 'popup'
+  })
 
-    folderStore.removeFiles(currentFolder.value, selectedFileList.value)
-    clearSelected()
-  }
+  // if (selectedFileList.value.length > 0) {
+  //   selectedFileList.value.forEach((name) => {
+  //     const itemIndex = fileList.value.findIndex((i) => i.file.name === name)
+  //     if (itemIndex > -1) {
+  //       fileList.value.splice(itemIndex, 1)
+  //     }
+  //   })
+
+  //   folderStore.removeFiles(currentFolder.value, selectedFileList.value)
+  //   clearSelected()
+  // }
 }
 
 const clearSelected = () => {
