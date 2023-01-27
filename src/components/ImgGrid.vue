@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { useModal } from "@/stores/modal"
 import type { FileObj } from "@/types"
 import { generateURL } from "@/utils/commonUtils"
-import { computed, ref } from "vue"
-import IconButton from "./IconButton.vue"
+import { computed, ref, shallowRef } from "vue"
+import ImageViewer from "./ImageViewer.vue"
 
 interface Props {
   fileList: FileObj[]
@@ -14,6 +15,8 @@ const props = defineProps<Props>()
 const interval = ref()
 const count = ref<number>(0)
 
+const modal = useModal()
+
 const emit = defineEmits<{
   (e: "initSelect", value: string): void
   (e: "itemSelect", value: string): void
@@ -23,7 +26,7 @@ const emit = defineEmits<{
 const withUrl = computed(() => {
   return props.fileList.map((file) => ({
     url: generateURL(file.file),
-    file: file.file,
+    file: file.file
   }))
 })
 
@@ -72,6 +75,19 @@ const handleOnClick = (fileName: string) => {
     emit("itemSelect", fileName)
   }
 }
+
+const onModalOpen = (file: FileObj) => {
+  modal.open({
+    detail: {
+      header: file.file.name,
+      content: file,
+    },
+    component: shallowRef(ImageViewer),
+    onClose: () => {
+      console.log('close modal')
+    },
+  })
+}
 </script>
 
 <template>
@@ -91,6 +107,7 @@ const handleOnClick = (fileName: string) => {
         ></div>
 
         <div
+          @click="onModalOpen(file)"
           @mousedown="start(file.file.name)"
           @mouseleave="stop"
           @mouseup="stop"
@@ -99,9 +116,10 @@ const handleOnClick = (fileName: string) => {
           @touchcancel="stop"
           class="img-wrapper flex items-center justify-center h-[8rem] md:h-[12rem] cursor-pointer select-none transition-opacity"
           :class="{
-          'opacity-20': enabledSelect && !selectedFileList.includes(file.file.name),
-        }"
-          >
+            'opacity-20':
+              enabledSelect && !selectedFileList.includes(file.file.name),
+          }"
+        >
           <img
             class="max-w-full max-h-full transition-transform"
             :class="{
@@ -109,7 +127,6 @@ const handleOnClick = (fileName: string) => {
               'group-hover:scale-110': !enabledSelect,
             }"
             :src="file.url"
-            draggable="false"
           />
         </div>
 

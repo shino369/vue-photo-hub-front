@@ -222,14 +222,14 @@ const onDebouncedSearch = _.debounce(search, 500)
           'bg-slate-300': !enabledSelect,
           'w-0': !dotClicked,
           'px-4 mr-2': dotClicked,
-          'w-[calc(50%-4rem)] min-w-[15rem] max-w-[20rem]': dotClicked && !enabledSelect,
+          'w-[16rem]': dotClicked && !enabledSelect,
           'w-[calc(100%-4rem)]': dotClicked && enabledSelect,
         }"
       >
         <input
           v-if="!enabledSelect"
           @input="onDebouncedSearch"
-          class="mx-2 w-full text-base px-2"
+          class="mx-2 w-[10rem] text-base px-2"
         />
         <IconButton
           v-if="!enabledSelect"

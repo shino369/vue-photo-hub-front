@@ -3,6 +3,7 @@ import { RouterView } from "vue-router"
 import { computed } from "vue"
 import NavBar from "@/components/NavBar.vue"
 import { useSideBar } from "@/stores/sidebar"
+import ModalDialog from "./components/ModalDialog.vue";
 
 const sideBarStore = useSideBar()
 const isSideBarShow = computed(() => sideBarStore.isSideBarShow)
@@ -21,6 +22,8 @@ const isSideBarShow = computed(() => sideBarStore.isSideBarShow)
     >
       <RouterView class="shadow-2xl p-4 md:rounded-br-[2rem] h-full bg-white" />
     </div>
+
+    <ModalDialog />
   </div>
 </template>
 
