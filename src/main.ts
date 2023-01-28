@@ -6,6 +6,7 @@ import router from "@/router"
 import localForage from "localforage"
 import "@/assets/main.css"
 import _ from "lodash"
+import type { FileObj, Folder } from "./types"
 
 const consoleStyle = `color: white; background: #483D8B; padding: 0.2rem;`
 
@@ -19,16 +20,64 @@ const toPersist = ["folders"]
 
 const indexDbPlugin = async ({ store }: { store: Store }) => {
   if (toPersist.includes(store.$id)) {
-    const stored = await localForage.getItem(store.$id + "-state")
-    console.log(`%c [rehydrated ${store.$id} store] `, consoleStyle)
+    const stored: { [key: string]: any } | null = await localForage.getItem(
+      store.$id + "-state"
+    )
+
+    // localForage.getItem(store.$id + '_' + key.split(" ").join("-"))
     if (stored) {
-      // console.log(`%c [store] `, consoleStyle, stored)
-      store.$patch(stored)
+      console.log(`%c [rehydrating ${store.$id} store...] `, consoleStyle)
+      const folderKeys = (stored.folderKeys as string[]) || []
+
+      const folders: Folder = {}
+      // do not use forEach for async. use normal for loop.
+      for (let i = 0; i < folderKeys.length; i++) {
+        const key = folderKeys[i]
+        const res: FileObj[] | null = await localForage.getItem(
+          store.$id + "_" + key.split(" ").join("-")
+        )
+        if (res) {
+          folders[key] = res
+        }
+        console.log(`%c [rehydraeted folder ${key}] `, consoleStyle)
+      }
+
+      const reconstructed = {
+        ..._.pickBy(stored, (_value, key) => key !== "folderKeys"),
+        folders: folders,
+      }
+
+      store.$patch(reconstructed)
     }
     store.$subscribe(() => {
-      console.log(`%c [persist item from ${store.$id} localForage] `, consoleStyle)
-      // convert to plain object
-      const newObj = _.cloneDeep(store.$state)
+      console.log(
+        `%c [persisting item from ${store.$id} to indexeddb...] `,
+        consoleStyle
+      )
+      const folderKeys = Object.entries((store.$state as any).folders) as [
+        key: string,
+        value: FileObj[]
+      ][]
+
+      // save folder to separated key store to prevent combined large store
+      for (const [key, value] of folderKeys) {
+        console.log(
+          `%c [persisting folder ${key} to indexeddb...] `,
+          consoleStyle
+        )
+        localForage.setItem(
+          store.$id + "_" + key.split(" ").join("-"),
+          _.cloneDeep(value)
+        )
+      }
+
+      // filter out folder
+      const newObj = {
+        ..._.pickBy(store.$state, (_value, key) => key !== "folders"),
+        folderKeys: Object.keys((store.$state as any).folders),
+      }
+
+      // set reminded small item
       localForage.setItem(store.$id + "-state", { ...newObj })
     })
   }
