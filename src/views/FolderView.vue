@@ -47,12 +47,11 @@ onMounted(() => {
     // here use rxjs to observe if ready.
     subscribeRehydrate = rehydrate.subscribe((ready) => {
       if (ready) {
-        console.log('ready')
-        init()
+        init(route.params.name as string)
       }
     })
   } else {
-    init()
+    init(route.params.name as string)
   }
 })
 
@@ -62,13 +61,13 @@ onUnmounted(() => {
   }
 })
 
-const init = () => {
+const init = (folderName: string) => {
   isfolderExist.value = folderStore.checkFolderExist(
     route.params.name as string
   )
 
   if (isfolderExist.value) {
-    getFileFromStore(route.params.name as string)
+    getFileFromStore(folderName)
     setTimeout(() => {
       setLoading(false)
     }, 300)
@@ -81,7 +80,7 @@ onBeforeRouteUpdate(async (to, from) => {
     // update folder to store
     fileList.value = []
     clearSelected()
-    init()
+    init(to.params.name as string)
   }
 })
 
