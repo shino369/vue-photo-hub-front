@@ -9,9 +9,10 @@ import { useLoading } from "@/stores/loading"
 import { useModal } from "@/stores/modal"
 import type { FileObj } from "@/types"
 import _ from "lodash"
-import { onMounted, ref, shallowRef, computed } from "vue"
+import { onMounted, ref, shallowRef, computed, onUnmounted } from "vue"
 import { onBeforeRouteUpdate, useRoute } from "vue-router"
 import { rehydrate } from "@/main"
+import type { Subscription } from "rxjs"
 
 /* ****************state***************** */
 const isfolderExist = ref<boolean>(false)
@@ -37,26 +38,42 @@ const loadingStore = useLoading()
 
 const sortBy = computed(() => folderStore.sortBy)
 const orderBy = computed(() => folderStore.orderBy)
+let subscribeRehydrate: Subscription
 
 onMounted(() => {
   setLoading(true)
-
-  // using custom async store cause delay in mounting.
-  // here use rxjs to observe if ready.
-  const subscribeRehydrate = rehydrate.subscribe(() => {
-    isfolderExist.value = folderStore.checkFolderExist(
-      route.params.name as string
-    )
-
-    if (isfolderExist.value) {
-      getFileFromStore(route.params.name as string)
-      setTimeout(() => {
-        setLoading(false)
-      }, 300)
-    }
-    subscribeRehydrate.unsubscribe()
-  })
+  if (!rehydrate.getValue()) {
+    // using custom async store cause delay in mounting.
+    // here use rxjs to observe if ready.
+    subscribeRehydrate = rehydrate.subscribe((ready) => {
+      if (ready) {
+        console.log('ready')
+        init()
+      }
+    })
+  } else {
+    init()
+  }
 })
+
+onUnmounted(() => {
+  if (subscribeRehydrate) {
+    subscribeRehydrate.unsubscribe()
+  }
+})
+
+const init = () => {
+  isfolderExist.value = folderStore.checkFolderExist(
+    route.params.name as string
+  )
+
+  if (isfolderExist.value) {
+    getFileFromStore(route.params.name as string)
+    setTimeout(() => {
+      setLoading(false)
+    }, 300)
+  }
+}
 
 onBeforeRouteUpdate(async (to, from) => {
   if (to.params.name !== from.params.name) {
@@ -64,16 +81,7 @@ onBeforeRouteUpdate(async (to, from) => {
     // update folder to store
     fileList.value = []
     clearSelected()
-
-    isfolderExist.value = folderStore.checkFolderExist(to.params.name as string)
-
-    if (isfolderExist.value) {
-      // get folder from store
-      setTimeout(() => {
-        getFileFromStore(to.params.name as string)
-        setLoading(false)
-      }, 300)
-    }
+    init()
   }
 })
 
@@ -300,22 +308,20 @@ const onDebouncedSearch = _.debounce(search, 500)
     }"
   >
     <template v-if="isfolderExist">
+      <div class="text-sm md:text-base whitespace-nowrap text-end capitalize">
+        total: {{ totalSize }} / {{ MAX_LENGTH }}
+      </div>
       <!-- buttons groups -->
       <div
         class="flex justify-end items-center overflow-hidden transition-transform"
       >
-        <div
-          class="text-sm md:text-base whitespace-nowrap mr-auto capitalize pr-2"
-        >
-          total: {{ totalSize }} / {{ MAX_LENGTH }}
-        </div>
         <div
           class="rounded-lg py-1 flex justify-end bg-slate-100 overflow-hidden transition-all"
           :class="{
             'bg-slate-300': !enabledSelect,
             'w-0': !dotClicked,
             'px-4 mr-2': dotClicked,
-            'w-[16rem]': dotClicked && !enabledSelect,
+            'w-[18rem]': dotClicked && !enabledSelect,
             'w-[calc(100%-4rem)]': dotClicked && enabledSelect,
           }"
         >
@@ -406,7 +412,7 @@ const onDebouncedSearch = _.debounce(search, 500)
       <DropArea
         @emit-file="onSetFileArr"
         @get-more="onGetMoreFiles"
-        class="h-[calc(100%-2rem)]"
+        class="h-[calc(100%-4rem)]"
       >
         <ImgGird
           :enabled-select="enabledSelect"

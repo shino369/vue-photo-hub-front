@@ -9,7 +9,7 @@ import _ from "lodash"
 import type { FileObj, Folder } from "./types"
 import Vue3Toastify, { type ToastContainerOptions } from "vue3-toastify"
 import "vue3-toastify/dist/index.css"
-import { Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 const consoleStyle = `color: white; background: #483D8B; padding: 0.2rem;`
 
@@ -20,7 +20,7 @@ localForage.config({
 })
 
 const toPersist = ["folders"]
-export const rehydrate = new Subject<boolean>()
+export const rehydrate = new BehaviorSubject<boolean>(false)
 
 const indexDbPlugin = async ({ store }: { store: Store }) => {
   if (toPersist.includes(store.$id)) {
