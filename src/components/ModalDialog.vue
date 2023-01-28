@@ -46,6 +46,7 @@ watch(
     >
       <!--modal area-->
       <component
+        @click="(e: Event) => {e.stopPropagation()}"
         class="transition-transform"
         :class="{
           'scale-0':

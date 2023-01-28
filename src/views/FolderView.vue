@@ -188,6 +188,7 @@ const confirmDelete = () => {
 
   folderStore.removeFiles(currentFolder.value, selectedFileList.value)
   clearSelected()
+  getFileFromStore(currentFolder.value)
 }
 
 const clearSelected = () => {

@@ -46,7 +46,7 @@ const upload = async (e: DragEvent) => {
 const handleScroll = (e: UIEvent) => {
   if (e.target) {
     const target = e.target as HTMLButtonElement
-    if (target.scrollTop + target.offsetHeight >= target.scrollHeight) {
+    if (target.scrollTop + target.offsetHeight + 100 >= target.scrollHeight) {
       emit("getMore")
     }
   }

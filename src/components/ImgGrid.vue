@@ -114,7 +114,7 @@ const onModalOpen = (file: FileObj) => {
           @touchstart="touchStart(file.file.name)"
           @touchend="stop"
           @touchcancel="stop"
-          class="img-wrapper flex items-center justify-center h-[8rem] md:h-[12rem] cursor-pointer select-none transition-opacity"
+          class="img-wrapper flex items-center justify-center h-[8rem] md:h-[12rem] select-none transition-opacity"
           :class="{
             'opacity-20':
               enabledSelect && !selectedFileList.includes(file.file.name),

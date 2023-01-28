@@ -46,7 +46,7 @@ const collpase = () => {
 
 <template>
   <div
-    class="absolute top-0 p-2 left-0 bg-slate-700 h-full w-[20rem] max-w-[100vw] capitalize z-50 transition-transform"
+    class="absolute top-0 p-2 left-0 bg-slate-700 h-[100vh] w-[20rem] max-w-[100vw] capitalize z-50 transition-transform"
     :class="{
       '-translate-x-full': !isSideBarShow,
     }"
