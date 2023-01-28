@@ -24,7 +24,6 @@ const indexDbPlugin = async ({ store }: { store: Store }) => {
       store.$id + "-state"
     )
 
-    // localForage.getItem(store.$id + '_' + key.split(" ").join("-"))
     if (stored) {
       console.log(`%c [rehydrating ${store.$id} store...] `, consoleStyle)
       const folderKeys = (stored.folderKeys as string[]) || []
