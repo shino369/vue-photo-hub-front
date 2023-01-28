@@ -16,7 +16,7 @@ export interface ActionBtn {
 
 export interface ModalDetail {
   inputValue?: string
-  onInputChange? (e: Event): void
+  onInputChange?(e: Event): void
   header?: string
   headerClass?: string
   content: any

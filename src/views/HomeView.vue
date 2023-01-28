@@ -94,7 +94,7 @@ const onSelectAll = () => {
   }
 }
 
-const editOnClick = (name: string) => {
+const onEditNameClick = (name: string) => {
   currentFolderName.value = name
   newFolderName.value = name
   modal.open({
@@ -123,6 +123,7 @@ const editOnClick = (name: string) => {
               modal.open({
                 detail: {
                   header: "Error: Folder Already exist",
+                  headerClass: "text-red-500",
                   content: `Folder already exist. Please use oth name.`,
                   actionBtns: [
                     {
@@ -265,7 +266,7 @@ const editOnClick = (name: string) => {
         <div class="flex justify-between items-center">
           <div>{{ folder }}</div>
           <IconButton
-            @click="editOnClick(folder)"
+            @click="onEditNameClick(folder)"
             name="edit"
             class="cursor-pointer"
             icon-class-name="h-5 w-5 md:h-6 md:w-6 text-black"

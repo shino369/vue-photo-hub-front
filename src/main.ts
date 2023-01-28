@@ -7,6 +7,8 @@ import localForage from "localforage"
 import "@/assets/main.css"
 import _ from "lodash"
 import type { FileObj, Folder } from "./types"
+import Vue3Toastify, { type ToastContainerOptions } from "vue3-toastify"
+import "vue3-toastify/dist/index.css"
 
 const consoleStyle = `color: white; background: #483D8B; padding: 0.2rem;`
 
@@ -87,4 +89,9 @@ pinia.use(indexDbPlugin)
 
 app.use(pinia)
 app.use(router)
+app.use(Vue3Toastify, {
+  autoClose: 3000,
+  theme: "dark",
+  closeOnClick: true,
+} as ToastContainerOptions)
 app.mount("#app")

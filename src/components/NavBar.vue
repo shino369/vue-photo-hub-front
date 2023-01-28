@@ -8,7 +8,14 @@ import { computed, ref } from "vue"
 import { useFolderStore } from "@/stores/folders"
 
 const folderStore = useFolderStore()
-const folders = computed(() => folderStore.getFolderList())
+const folders = computed(() => {
+  const getfolder = folderStore.getFolderList()
+  if (typeof getfolder !== "string") {
+    return getfolder
+  } else {
+    return []
+  }
+})
 
 const isEditing = ref<boolean>(false)
 
@@ -35,7 +42,7 @@ const { toggle } = useSideBar()
         {{ route.params.name }}
       </div>
       <input v-if="isEditing" />
-        
+
       <!-- <IconButton
         name="edit"
         class="cursor-pointer ml-2"

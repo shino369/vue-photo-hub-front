@@ -48,7 +48,7 @@ const collpase = () => {
 
 <template>
   <div
-    class="absolute top-0 p-2 left-0 bg-slate-700 h-[100vh] w-[20rem] max-w-[100vw] capitalize z-50 transition-transform"
+    class="absolute top-0 p-2 left-0 bg-slate-700 h-[100vh] w-[20rem] max-w-[100vw] z-50 transition-transform"
     :class="{
       '-translate-x-full': !isSideBarShow,
     }"
@@ -67,7 +67,7 @@ const collpase = () => {
           <RouterLink
             @click="collpase"
             draggable="false"
-            class="w-full h-full px-4 py-2 bg-gray-400 text-white hover:opacity-80 overflow-hidden text-ellipsis whitespace-nowrap"
+            class="w-full h-full px-4 py-2 bg-gray-400 text-white hover:opacity-80 overflow-hidden text-ellipsis whitespace-nowrap capitalize"
             :class="{
               'bg-sky-900': currentRoute.name === route.name,
             }"

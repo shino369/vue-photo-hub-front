@@ -15,7 +15,7 @@ const props = defineProps<Props>()
     <div
       class="flex justify-between pb-2 items-center border-b border-slate-200"
     >
-      <div class="capitalize">{{ detail.header }}</div>
+      <div class="capitalize" :class="detail.headerClass? detail.headerClass : ''">{{ detail.header }}</div>
       <IconButton
         @click="onCloseClick"
         name="close"
