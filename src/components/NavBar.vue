@@ -21,6 +21,7 @@ const { toggle } = useSideBar()
     <IconButton
       @click="toggle(true)"
       name="menu"
+      class="cursor-pointer"
       icon-class-name="w-8 h-8 text-black"
     />
     <div

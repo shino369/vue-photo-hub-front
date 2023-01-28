@@ -21,9 +21,11 @@ const isSideBarShow = computed(() => sideBarStore.isSideBarShow)
 const folderStore = useFolderStore()
 const showNewFolderInput = ref<boolean>(false)
 const newFolderName = ref<string>("")
+const inputRef = ref()
 
 const addNewFolder = () => {
   showNewFolderInput.value = true
+  inputRef.value.focus()
 }
 const comfirmAddNewFolder = () => {
   showNewFolderInput.value = false
@@ -92,7 +94,9 @@ const collpase = () => {
           icon-class-name="w-6 h-6 text-white group-hover:opacity-80"
         />
         <input
-          class="transition-all py-1"
+          ref="inputRef"
+          @keydown.enter="comfirmAddNewFolder"
+          class="transition-all py-1 focus:outline-none"
           :class="{
             'w-0': !showNewFolderInput,
             'px-2': showNewFolderInput,

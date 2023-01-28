@@ -217,7 +217,7 @@ const onSelectAll = () => {
   if (selectedFileList.value.length > 0) {
     selectedFileList.value = []
   } else {
-    selectedFileList.value = fileList.value.map((f) => f.file.name)
+    selectedFileList.value =  folderStore.getFolder(currentFolder.value).map((f) => f.file.name)
   }
 }
 
@@ -300,7 +300,7 @@ const onDebouncedSearch = _.debounce(search, 500)
         <input
           v-if="!enabledSelect"
           @input="onDebouncedSearch"
-          class="mx-2 w-[7rem] text-base px-2"
+          class="mx-2 w-full text-base px-2"
         />
         <IconButton
           v-if="!enabledSelect"
