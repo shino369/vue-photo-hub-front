@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useSideBar } from "@/stores/sidebar"
-import { useRoute } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
 import { routes } from "@/router/index"
 import IconButton from "./IconButton.vue"
 import SideBar from "./SideBar.vue"
@@ -20,7 +20,12 @@ const folders = computed(() => {
 const isEditing = ref<boolean>(false)
 
 const route = useRoute()
+const router = useRouter()
 const { toggle } = useSideBar()
+
+const goHome = () => {
+  router.push("/")
+}
 </script>
 
 <template>
@@ -34,7 +39,14 @@ const { toggle } = useSideBar()
     <div
       class="ml-2 capitalize flex items-end font-bold flex-nowrap whitespace-nowrap overflow-hidden"
     >
-      <div>{{ route.name }}</div>
+      <div
+        @click="route.name === 'folder' && goHome()"
+        :class="{
+          'cursor-pointer': route.name === 'folder',
+        }"
+      >
+        {{ route.name }}
+      </div>
       <div v-if="route.params.name" class="mx-2 font-normal text-gray-500">
         /
       </div>

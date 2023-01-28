@@ -3,15 +3,18 @@ import DropArea from "@/components/DropArea.vue"
 import IconButton from "@/components/IconButton.vue"
 import ImgGird from "@/components/ImgGrid.vue"
 import PopupDialog from "@/components/PopupDialog.vue"
-import { useFolderStore } from "@/stores/folders"
+import NotFound from "@/components/NotFound.vue"
+import { useFolderStore, MAX_LENGTH } from "@/stores/folders"
 import { useLoading } from "@/stores/loading"
 import { useModal } from "@/stores/modal"
 import type { FileObj } from "@/types"
 import _ from "lodash"
 import { onMounted, ref, shallowRef, computed } from "vue"
 import { onBeforeRouteUpdate, useRoute } from "vue-router"
+import { rehydrate } from "@/main"
 
 /* ****************state***************** */
+const isfolderExist = ref<boolean>(false)
 
 const fileList = ref<FileObj[]>([])
 const tempFileList = ref<FileObj[]>([])
@@ -37,10 +40,22 @@ const orderBy = computed(() => folderStore.orderBy)
 
 onMounted(() => {
   setLoading(true)
-  getFileFromStore(route.params.name as string)
-  setTimeout(() => {
-    setLoading(false)
-  }, 300)
+
+  // using custom async store cause delay in mounting.
+  // here use rxjs to observe if ready.
+  const subscribeRehydrate = rehydrate.subscribe(() => {
+    isfolderExist.value = folderStore.checkFolderExist(
+      route.params.name as string
+    )
+
+    if (isfolderExist.value) {
+      getFileFromStore(route.params.name as string)
+      setTimeout(() => {
+        setLoading(false)
+      }, 300)
+    }
+    subscribeRehydrate.unsubscribe()
+  })
 })
 
 onBeforeRouteUpdate(async (to, from) => {
@@ -48,13 +63,17 @@ onBeforeRouteUpdate(async (to, from) => {
     setLoading(true)
     // update folder to store
     fileList.value = []
-
-    // get folder from store
-    setTimeout(() => {
-      getFileFromStore(to.params.name as string)
-      setLoading(false)
-    }, 300)
     clearSelected()
+
+    isfolderExist.value = folderStore.checkFolderExist(to.params.name as string)
+
+    if (isfolderExist.value) {
+      // get folder from store
+      setTimeout(() => {
+        getFileFromStore(to.params.name as string)
+        setLoading(false)
+      }, 300)
+    }
   }
 })
 
@@ -217,7 +236,9 @@ const onSelectAll = () => {
   if (selectedFileList.value.length > 0) {
     selectedFileList.value = []
   } else {
-    selectedFileList.value =  folderStore.getFolder(currentFolder.value).map((f) => f.file.name)
+    selectedFileList.value = folderStore
+      .getFolder(currentFolder.value)
+      .map((f) => f.file.name)
   }
 }
 
@@ -278,122 +299,128 @@ const onDebouncedSearch = _.debounce(search, 500)
       'bg-zinc-400': enabledSelect,
     }"
   >
-    <!-- buttons groups -->
-    <div
-      class="flex justify-end items-center overflow-hidden transition-transform"
-    >
+    <template v-if="isfolderExist">
+      <!-- buttons groups -->
       <div
-        class="text-sm md:text-base whitespace-nowrap mr-auto capitalize pr-2"
+        class="flex justify-end items-center overflow-hidden transition-transform"
       >
-        total: {{ totalSize }}
-      </div>
-      <div
-        class="rounded-lg py-1 flex justify-end bg-slate-100 overflow-hidden transition-all"
-        :class="{
-          'bg-slate-300': !enabledSelect,
-          'w-0': !dotClicked,
-          'px-4 mr-2': dotClicked,
-          'w-[16rem]': dotClicked && !enabledSelect,
-          'w-[calc(100%-4rem)]': dotClicked && enabledSelect,
-        }"
-      >
-        <input
-          v-if="!enabledSelect"
-          @input="onDebouncedSearch"
-          class="mx-2 w-full text-base px-2"
-        />
-        <IconButton
-          v-if="!enabledSelect"
-          @click="onEditClick"
-          name="edit"
-          class="cursor-pointer mr-4"
-          icon-class-name="w-6 h-6 text-black"
-        />
-
-        <input
-          multiple
-          type="file"
-          id="img-upload"
-          class="hidden"
-          @change="handleFilesUpload"
-        />
-        <label
-          for="img-upload"
-          class="cursor-pointer mr-4"
-          v-if="!enabledSelect"
-        >
-          <IconButton name="upload" icon-class-name="w-6 h-6 text-black" />
-        </label>
-        <IconButton
-          v-if="!enabledSelect"
-          name="download"
-          class="cursor-pointer"
-          icon-class-name="w-6 h-6 text-black"
-        />
         <div
-          class="transition-all flex overflow-hidden items-center"
+          class="text-sm md:text-base whitespace-nowrap mr-auto capitalize pr-2"
+        >
+          total: {{ totalSize }} / {{ MAX_LENGTH }}
+        </div>
+        <div
+          class="rounded-lg py-1 flex justify-end bg-slate-100 overflow-hidden transition-all"
           :class="{
-            'w-0': !enabledSelect,
-            'mr-auto': enabledSelect,
+            'bg-slate-300': !enabledSelect,
+            'w-0': !dotClicked,
+            'px-4 mr-2': dotClicked,
+            'w-[16rem]': dotClicked && !enabledSelect,
+            'w-[calc(100%-4rem)]': dotClicked && enabledSelect,
           }"
         >
+          <input
+            v-if="!enabledSelect"
+            @input="onDebouncedSearch"
+            class="mx-2 w-full text-base px-2"
+          />
           <IconButton
-            @click="onDeleteSelected"
-            name="trash"
+            v-if="!enabledSelect"
+            @click="onEditClick"
+            name="edit"
+            class="cursor-pointer mr-4"
+            icon-class-name="w-6 h-6 text-black"
+          />
+
+          <input
+            multiple
+            type="file"
+            id="img-upload"
+            class="hidden"
+            @change="handleFilesUpload"
+          />
+          <label
+            for="img-upload"
+            class="cursor-pointer mr-4"
+            v-if="!enabledSelect"
+          >
+            <IconButton name="upload" icon-class-name="w-6 h-6 text-black" />
+          </label>
+          <IconButton
+            v-if="!enabledSelect"
+            name="download"
             class="cursor-pointer"
-            :class="{
-              'w-0': !enabledSelect,
-            }"
             icon-class-name="w-6 h-6 text-black"
           />
           <div
-            v-if="enabledSelect && selectedFileList.length > 0 && dotClicked"
-            class="ml-2 text-ellipsis text-sm md:text-base whitespace-nowrap"
+            class="transition-all flex overflow-hidden items-center"
+            :class="{
+              'w-0': !enabledSelect,
+              'mr-auto': enabledSelect,
+            }"
           >
-            {{ selectedFileList.length }} item(s) selected
+            <IconButton
+              @click="onDeleteSelected"
+              name="trash"
+              class="cursor-pointer"
+              :class="{
+                'w-0': !enabledSelect,
+              }"
+              icon-class-name="w-6 h-6 text-black"
+            />
+            <div
+              v-if="enabledSelect && selectedFileList.length > 0 && dotClicked"
+              class="ml-2 text-ellipsis text-sm md:text-base whitespace-nowrap"
+            >
+              {{ selectedFileList.length }} item(s) selected
+            </div>
           </div>
+
+          <IconButton
+            @click="onSelectAll"
+            name="all"
+            class="cursor-pointer overflow-hidden transition-all"
+            :class="{
+              'w-0': !enabledSelect,
+              'w-6 mr-2': enabledSelect,
+            }"
+            icon-class-name="w-6 h-6 text-black"
+          />
+          <IconButton
+            v-if="enabledSelect"
+            @click="onEditClick"
+            name="close"
+            class="cursor-pointer"
+            icon-class-name="w-6 h-6 text-black"
+          />
         </div>
 
         <IconButton
-          @click="onSelectAll"
-          name="all"
-          class="cursor-pointer overflow-hidden transition-all"
-          :class="{
-            'w-0': !enabledSelect,
-            'w-6 mr-2': enabledSelect,
-          }"
-          icon-class-name="w-6 h-6 text-black"
-        />
-        <IconButton
-          v-if="enabledSelect"
-          @click="onEditClick"
-          name="close"
+          @click="onDotClick"
+          name="threeDot"
           class="cursor-pointer"
           icon-class-name="w-6 h-6 text-black"
         />
       </div>
 
-      <IconButton
-        @click="onDotClick"
-        name="threeDot"
-        class="cursor-pointer"
-        icon-class-name="w-6 h-6 text-black"
-      />
-    </div>
+      <DropArea
+        @emit-file="onSetFileArr"
+        @get-more="onGetMoreFiles"
+        class="h-[calc(100%-2rem)]"
+      >
+        <ImgGird
+          :enabled-select="enabledSelect"
+          @item-select="onAddToSelected"
+          @init-select="onInitSelect"
+          :fileList="fileList"
+          :selectedFileList="selectedFileList"
+        />
+      </DropArea>
+    </template>
 
-    <DropArea
-      @emit-file="onSetFileArr"
-      @get-more="onGetMoreFiles"
-      class="h-[calc(100%-2rem)]"
-    >
-      <ImgGird
-        :enabled-select="enabledSelect"
-        @item-select="onAddToSelected"
-        @init-select="onInitSelect"
-        :fileList="fileList"
-        :selectedFileList="selectedFileList"
-      />
-    </DropArea>
+    <template v-if="!isfolderExist">
+      <NotFound />
+    </template>
   </div>
 </template>
 

@@ -1,4 +1,4 @@
-import { createApp } from "vue"
+import { createApp, ref } from "vue"
 import { createPinia, type Store } from "pinia"
 
 import App from "@/App.vue"
@@ -9,6 +9,7 @@ import _ from "lodash"
 import type { FileObj, Folder } from "./types"
 import Vue3Toastify, { type ToastContainerOptions } from "vue3-toastify"
 import "vue3-toastify/dist/index.css"
+import { Subject } from 'rxjs';
 
 const consoleStyle = `color: white; background: #483D8B; padding: 0.2rem;`
 
@@ -19,6 +20,7 @@ localForage.config({
 })
 
 const toPersist = ["folders"]
+export const rehydrate = new Subject<boolean>()
 
 const indexDbPlugin = async ({ store }: { store: Store }) => {
   if (toPersist.includes(store.$id)) {
@@ -49,6 +51,7 @@ const indexDbPlugin = async ({ store }: { store: Store }) => {
       }
 
       store.$patch(reconstructed)
+      rehydrate.next(true)
     }
     store.$subscribe(() => {
       console.log(
@@ -94,4 +97,8 @@ app.use(Vue3Toastify, {
   theme: "dark",
   closeOnClick: true,
 } as ToastContainerOptions)
-app.mount("#app")
+router.isReady().then(() => {
+  app.mount("#app")
+})
+
+

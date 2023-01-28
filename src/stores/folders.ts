@@ -1,12 +1,12 @@
 import { ref } from "vue"
 import { defineStore } from "pinia"
 import type { FileObj, Folder, OrderType, SortType } from "@/types"
-import { toast } from 'vue3-toastify'
+import { toast } from "vue3-toastify"
 
-const MAX_LENGTH = 100
+export const MAX_LENGTH = 1000
 
 enum ERROR {
-  MAX_LENGTH_EXCEED = "MAX_LENGTH_EXCEED",
+  MAX_LENGTH_EXCEED = "Number of files exceed limit of 1000",
   FILE_SIZE_EXCEED = "FILE_SIZE_EXCEED",
   FOLDER_NOT_YET_INITIALIZED = "FOLDER_NOT_YET_INITIALIZED",
   FOLDER_NOT_FOUND = "FOLDER_NOT_FOUND",
@@ -18,8 +18,8 @@ enum ERROR {
 
 const showError = (err: string) => {
   toast(err, {
-    type: 'error'
-  }); // ToastOptions
+    type: "error",
+  }) // ToastOptions
 }
 
 export const useFolderStore = defineStore("folders", () => {
@@ -53,6 +53,21 @@ export const useFolderStore = defineStore("folders", () => {
       // show toast
       showError(err)
     }
+  }
+
+  const checkFolderExist = (folderName: string) => {
+    try {
+      if (folders.value[folderName]) {
+        return true
+      } else {
+        throw new Error(ERROR.FOLDER_NOT_FOUND)
+      }
+    } catch (e) {
+      const err = (e as Error).message
+      // show toast
+      showError(err)
+    }
+    return false
   }
 
   const getFolder = (folderName: string) => {
@@ -189,7 +204,7 @@ export const useFolderStore = defineStore("folders", () => {
 
   const addNewFolder = (folderName: string) => {
     try {
-      if(folders.value[folderName]) {
+      if (folders.value[folderName]) {
         throw new Error(ERROR.FOLDER_NAME_EXIST)
       }
       folders.value[folderName] = []
@@ -356,5 +371,6 @@ export const useFolderStore = defineStore("folders", () => {
     removeFiles,
     renameFile,
     renameFolder,
+    checkFolderExist,
   }
 })
