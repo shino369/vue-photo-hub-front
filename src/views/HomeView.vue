@@ -117,34 +117,36 @@ const onEditNameClick = (name: string) => {
           name: "confirm",
           iconName: "confirm",
           onClick: () => {
-            if (currentFolderName.value === newFolderName.value) {
-              modal.close()
-            } else if (folders.value.includes(newFolderName.value)) {
-              modal.open({
-                detail: {
-                  header: "Error: Folder Already exist",
-                  headerClass: "text-red-500",
-                  content: `Folder already exist. Please use oth name.`,
-                  actionBtns: [
-                    {
-                      name: "confirm",
-                      iconName: "confirm",
-                      onClick: () => {
-                        modal.close()
+            if (newFolderName.value.trim() !== "") {
+              if (currentFolderName.value === newFolderName.value) {
+                modal.close()
+              } else if (folders.value.includes(newFolderName.value)) {
+                modal.open({
+                  detail: {
+                    header: "Error: Folder Already exist",
+                    headerClass: "text-red-500",
+                    content: `Folder already exist. Please use oth name.`,
+                    actionBtns: [
+                      {
+                        name: "confirm",
+                        iconName: "confirm",
+                        onClick: () => {
+                          modal.close()
+                        },
                       },
-                    },
-                  ],
-                },
-                component: shallowRef(PopupDialog),
-                onClose: () => {},
-                type: "popup",
-              })
-            } else {
-              folderStore.renameFolder(
-                currentFolderName.value,
-                newFolderName.value
-              )
-              modal.close()
+                    ],
+                  },
+                  component: shallowRef(PopupDialog),
+                  onClose: () => {},
+                  type: "popup",
+                })
+              } else {
+                folderStore.renameFolder(
+                  currentFolderName.value,
+                  newFolderName.value
+                )
+                modal.close()
+              }
             }
           },
         },
@@ -178,29 +180,31 @@ const onAddNewFolderClick = () => {
           name: "confirm",
           iconName: "confirm",
           onClick: () => {
-            if (folders.value.includes(newFolderName.value)) {
-              modal.open({
-                detail: {
-                  header: "Error: Folder Already exist",
-                  headerClass: "text-red-500",
-                  content: `Folder already exist. Please use other names.`,
-                  actionBtns: [
-                    {
-                      name: "confirm",
-                      iconName: "confirm",
-                      onClick: () => {
-                        modal.close()
+            if (newFolderName.value.trim() !== "") {
+              if (folders.value.includes(newFolderName.value)) {
+                modal.open({
+                  detail: {
+                    header: "Error: Folder Already exist",
+                    headerClass: "text-red-500",
+                    content: `Folder already exist. Please use other names.`,
+                    actionBtns: [
+                      {
+                        name: "confirm",
+                        iconName: "confirm",
+                        onClick: () => {
+                          modal.close()
+                        },
                       },
-                    },
-                  ],
-                },
-                component: shallowRef(PopupDialog),
-                onClose: () => {},
-                type: "popup",
-              })
-            } else {
-              folderStore.addNewFolder(newFolderName.value)
-              modal.close()
+                    ],
+                  },
+                  component: shallowRef(PopupDialog),
+                  onClose: () => {},
+                  type: "popup",
+                })
+              } else {
+                folderStore.addNewFolder(newFolderName.value)
+                modal.close()
+              }
             }
           },
         },
@@ -327,7 +331,7 @@ const onAddNewFolderClick = () => {
           }"
         ></div>
         <div class="flex justify-between items-center">
-          <div class=" break-all">{{ folder }}</div>
+          <div class="break-all">{{ folder }}</div>
           <IconButton
             @click="onEditNameClick(folder)"
             name="edit"
