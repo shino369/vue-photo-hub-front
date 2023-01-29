@@ -37,7 +37,7 @@ const touchStart = (fileName: string) => {
   if (!interval.value) {
     interval.value = setInterval(() => {
       count.value++
-      if (count.value > 8) {
+      if (count.value > 6) {
         emit("initSelect", fileName)
         stop()
       }
@@ -51,7 +51,7 @@ const start = (fileName: string) => {
     if (!interval.value) {
       interval.value = setInterval(() => {
         count.value++
-        if (count.value > 8) {
+        if (count.value > 5) {
           emit("initSelect", fileName)
           stop()
           count.value = 0
@@ -112,6 +112,7 @@ const onModalOpen = (file: FileObj) => {
           @mouseleave="stop"
           @mouseup="stop"
           @touchstart="touchStart(file.file.name)"
+          @touchmove="stop"
           @touchend="stop"
           @touchcancel="stop"
           class="img-wrapper flex items-center justify-center h-[8rem] md:h-[12rem] select-none transition-opacity cursor-pointer"
