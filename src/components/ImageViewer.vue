@@ -162,7 +162,7 @@ onUnmounted(() => {
       </div>
     </div>
     <div
-      class="flex justify-center py-6 absolute left-0 bottom-0 w-full bg-[rgba(0,0,0,0.9)] origin-bottom transition-transform"
+      class="flex justify-center py-6 absolute left-0 bottom-0 w-full bg-[rgba(0,0,0,0.8)] origin-bottom transition-transform pb-20"
       :class="{
         'scale-y-0': imgClicked,
       }"
