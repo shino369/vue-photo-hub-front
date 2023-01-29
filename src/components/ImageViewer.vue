@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { ModalDetail } from "@/types"
 import { generateURL } from "@/utils/commonUtils"
-import { computed, onMounted, ref } from "vue"
+import { computed, onUnmounted, ref } from "vue"
 import IconButton from "./IconButton.vue"
 import moment from "moment"
 import { useFolderStore } from "@/stores/folders"
 import { useRoute } from "vue-router"
+import PinchZoom from "pinch-zoom-js"
 
 interface Props {
   detail: ModalDetail
@@ -21,7 +22,7 @@ const error = ref({
   text: "",
   show: false,
 })
-
+const imgClicked = ref<boolean>(false)
 const folderStore = useFolderStore()
 const route = useRoute()
 
@@ -41,7 +42,6 @@ const withUrl = computed(() => {
     },
   }
 })
-
 
 const handleClose = () => {
   URL.revokeObjectURL(withUrl.value.url)
@@ -98,12 +98,47 @@ const download = () => {
   a.click()
   a.remove() // remove the element
 }
+
+const imgRef = ref<HTMLElement>()
+
+const imgSize = ref({
+  width: 0,
+  height: 0,
+})
+
+let pz: any
+const onLoad = () => {
+  let img = new Image()
+  img.src = withUrl.value.url
+  img.onload = () => {
+    imgSize.value = {
+      width: img.width,
+      height: img.height,
+    }
+
+    if (imgRef.value) {
+      pz = new PinchZoom(imgRef.value, {
+        draggableUnzoomed: false,
+        minZoom: 1,
+      })
+    }
+  }
+}
+
+const onImageClicked = () => {
+  imgClicked.value = !imgClicked.value
+}
+
+onUnmounted(() => {
+  pz.destroy()
+})
+
 </script>
 
 <template>
   <div class="w-full h-full flex flex-col text-slate-300 select-text">
     <div
-      class="w-100 flex mx-6 py-4 items-center justify-between border-b border-neutral-600 mb-4"
+      class="w-100 flex mx-3 md:mx-6 py-2 md:py-4 items-center justify-between border-b border-neutral-600 mb-2 md:mb-4"
     >
       <div class="px-10 whitespace-nowrap text-ellipsis overflow-hidden">
         {{ detail.header }}
@@ -111,16 +146,27 @@ const download = () => {
       <IconButton
         name="close"
         class="cursor-pointer"
-        icon-class-name="w-10 h-10 text-white"
+        icon-class-name="w-8 h-8 text-white"
         @click="handleClose"
       />
     </div>
     <div class="flex-1 flex justify-center overflow-hidden">
-      <div class="h-full overflow-hidden">
-        <img :src="withUrl.url" class="object-contain h-full" />
+      <div class="w-full">
+        <img
+          @click="onImageClicked"
+          @load="onLoad"
+          ref="imgRef"
+          :src="withUrl.url"
+          class="m-auto object-contain h-full"
+        />
       </div>
     </div>
-    <div class="flex justify-center py-6">
+    <div
+      class="flex justify-center py-6 absolute left-0 bottom-0 w-full bg-[rgba(0,0,0,0.8)] origin-bottom transition-transform pb-20"
+      :class="{
+        'scale-y-0': imgClicked,
+      }"
+    >
       <div class="w-full px-6">
         <div class="flex flex-row border-b border-neutral-600 py-2">
           <div class="capitalize basis-2/5">name :</div>

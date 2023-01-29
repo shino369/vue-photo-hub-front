@@ -1,4 +1,5 @@
 import HomeView from "@/views/HomeView.vue"
+import NotFoundView from "@/views/NotFoundView.vue"
 import {
   createRouter,
   createWebHistory,
@@ -48,10 +49,13 @@ const routeMap: {
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: routes.map((route) => ({
-    ...route,
-    ...routeMap[route.name],
-  })) as RouteRecordRaw[],
+  routes: [
+    ...(routes.map((route) => ({
+      ...route,
+      ...routeMap[route.name],
+    })) as RouteRecordRaw[]),
+    { path: "/:pathMatch(.*)*", component: NotFoundView },
+  ],
 })
 
 export default router
