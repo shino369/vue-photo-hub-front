@@ -211,9 +211,6 @@ const onImageClicked = () => {
       <div
         @click="onPageChange('right')"
         class="absolute h-full w-[3rem] md:w-[4rem] left-0 top-0 hover:bg-[rgba(112,112,112,0.1)] cursor-pointer"
-        :class="{
-          hidden: imgClicked,
-        }"
       ></div>
       <div
         @click="onPageChange('left')"
@@ -223,6 +220,9 @@ const onImageClicked = () => {
 
     <div
       class="flex justify-center py-6 absolute left-0 bottom-0 w-full bg-[rgba(0,0,0,0.8)] origin-bottom transition-transform pb-20"
+      :class="{
+        'scale-y-0': imgClicked,
+      }"
     >
       <div class="w-full px-6">
         <div class="flex flex-row border-b border-neutral-600 py-2">
