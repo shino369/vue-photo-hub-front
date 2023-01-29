@@ -2,6 +2,7 @@ import { ref } from "vue"
 import { defineStore } from "pinia"
 import type { FileObj, Folder, OrderType, SortType } from "@/types"
 import { toast } from "vue3-toastify"
+import localforage from "localforage"
 
 export const MAX_LENGTH = 1000
 
@@ -300,6 +301,7 @@ export const useFolderStore = defineStore("folders", () => {
     try {
       folders.value[newFolderName] = folders.value[oldFolderName]
       delete folders.value[oldFolderName]
+      localforage.removeItem("folders_" + oldFolderName.split(" ").join("-"))
     } catch (e) {
       const err = (e as Error).message
       // show toast
@@ -361,6 +363,13 @@ export const useFolderStore = defineStore("folders", () => {
     try {
       if (folders.value[folderName]) {
         delete folders.value[folderName]
+        localforage
+          .removeItem("folders_" + folderName.split(" ").join("-"), (err) => {
+            if (err) throw new Error(err)
+          })
+          .then(() => {
+            console.log("removed")
+          })
       } else {
         throw new Error(ERROR.FOLDER_NOT_FOUND)
       }

@@ -155,6 +155,62 @@ const onEditNameClick = (name: string) => {
     type: "popup",
   })
 }
+
+const onAddNewFolderClick = () => {
+  newFolderName.value = ""
+  modal.open({
+    detail: {
+      header: "Add New Folder",
+      content: ``,
+      inputValue: newFolderName.value,
+      onInputChange: (e: Event) => {
+        newFolderName.value = (e.target as HTMLInputElement).value
+      },
+      actionBtns: [
+        {
+          name: "cancel",
+          iconName: "close",
+          onClick: () => {
+            modal.close()
+          },
+        },
+        {
+          name: "confirm",
+          iconName: "confirm",
+          onClick: () => {
+            if (folders.value.includes(newFolderName.value)) {
+              modal.open({
+                detail: {
+                  header: "Error: Folder Already exist",
+                  headerClass: "text-red-500",
+                  content: `Folder already exist. Please use other names.`,
+                  actionBtns: [
+                    {
+                      name: "confirm",
+                      iconName: "confirm",
+                      onClick: () => {
+                        modal.close()
+                      },
+                    },
+                  ],
+                },
+                component: shallowRef(PopupDialog),
+                onClose: () => {},
+                type: "popup",
+              })
+            } else {
+              folderStore.addNewFolder(newFolderName.value)
+              modal.close()
+            }
+          },
+        },
+      ],
+    },
+    component: shallowRef(PopupDialog),
+    onClose: () => {},
+    type: "popup",
+  })
+}
 </script>
 
 <template>
@@ -177,10 +233,17 @@ const onEditNameClick = (name: string) => {
           'bg-slate-300': !enabledSelect,
           'w-0': !dotClicked,
           'px-4 mr-2': dotClicked,
-          'w-[3.5rem]': dotClicked && !enabledSelect,
+          'w-[5.5rem]': dotClicked && !enabledSelect,
           'w-[calc(100%-4rem)]': dotClicked && enabledSelect,
         }"
       >
+        <IconButton
+          v-if="!enabledSelect"
+          @click="onAddNewFolderClick"
+          name="plus"
+          class="cursor-pointer mr-2"
+          icon-class-name="w-6 h-6 text-black"
+        />
         <IconButton
           v-if="!enabledSelect"
           @click="onEditClick"
@@ -264,7 +327,7 @@ const onEditNameClick = (name: string) => {
           }"
         ></div>
         <div class="flex justify-between items-center">
-          <div>{{ folder }}</div>
+          <div class=" break-all">{{ folder }}</div>
           <IconButton
             @click="onEditNameClick(folder)"
             name="edit"

@@ -6,8 +6,16 @@ interface Props {
   detail: ModalDetail
   onCloseClick: () => void
 }
-
 const props = defineProps<Props>()
+const inputRef = ref<HTMLInputElement>()
+
+onMounted(() => {
+    if(props.detail.inputValue !== undefined && inputRef.value) {
+        inputRef.value.focus()
+    }
+})
+
+
 </script>
 
 <template>
@@ -26,6 +34,7 @@ const props = defineProps<Props>()
     <div class="py-4 text-base">
       {{ detail.content }}
       <input
+        ref="inputRef"
         class="border rounded-sm w-full px-4 border-slate-400"
         v-if="detail.inputValue !== undefined"
         :value="detail.inputValue"

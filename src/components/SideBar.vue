@@ -95,7 +95,6 @@ const collpase = () => {
         />
         <input
           ref="inputRef"
-          @keydown.enter="comfirmAddNewFolder"
           class="transition-all py-1 focus:outline-none"
           :class="{
             'w-0': !showNewFolderInput,

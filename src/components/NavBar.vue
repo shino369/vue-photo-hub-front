@@ -44,7 +44,7 @@ const onExitFullscreenClick = () => {
     <IconButton
       @click="toggle(true)"
       name="menu"
-      class="cursor-pointer"
+      class="cursor-pointer pr-2"
       icon-class-name="w-8 h-8 text-black"
     />
     <div
