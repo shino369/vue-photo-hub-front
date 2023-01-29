@@ -7,9 +7,9 @@ import localForage from "localforage"
 import "@/assets/main.css"
 import _ from "lodash"
 import type { FileObj, Folder } from "./types"
-import Vue3Toastify, { type ToastContainerOptions } from "vue3-toastify"
+import Vue3Toastify, { toast, type ToastContainerOptions } from "vue3-toastify"
 import "vue3-toastify/dist/index.css"
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from "rxjs"
 
 const consoleStyle = `color: white; background: #483D8B; padding: 0.2rem;`
 
@@ -25,7 +25,13 @@ export const rehydrate = new BehaviorSubject<boolean>(false)
 const indexDbPlugin = async ({ store }: { store: Store }) => {
   if (toPersist.includes(store.$id)) {
     const stored: { [key: string]: any } | null = await localForage.getItem(
-      store.$id + "-state"
+      store.$id + "-state",
+      (err) => {
+        if (err)
+          toast("Error occur when getting file from store.", {
+            type: "error",
+          })
+      }
     )
 
     if (stored) {
@@ -37,7 +43,13 @@ const indexDbPlugin = async ({ store }: { store: Store }) => {
       for (let i = 0; i < folderKeys.length; i++) {
         const key = folderKeys[i]
         const res: FileObj[] | null = await localForage.getItem(
-          store.$id + "_" + key.split(" ").join("-")
+          store.$id + "_" + key.split(" ").join("-"),
+          (err) => {
+            if (err)
+              toast("Error occur when getting file from store.", {
+                type: "error",
+              })
+          }
         )
         if (res) {
           folders[key] = res
@@ -69,10 +81,19 @@ const indexDbPlugin = async ({ store }: { store: Store }) => {
           `%c [persisting folder ${key} to indexeddb...] `,
           consoleStyle
         )
-        localForage.setItem(
-          store.$id + "_" + key.split(" ").join("-"),
-          _.cloneDeep(value)
-        )
+        localForage
+          .setItem(
+            store.$id + "_" + key.split(" ").join("-"),
+            _.cloneDeep(value)
+          )
+          .then(
+            (_res) => {},
+            (_err) => {
+              toast("Error occur when saing file to store.", {
+                type: "error",
+              })
+            }
+          )
       }
 
       // filter out folder
@@ -82,7 +103,14 @@ const indexDbPlugin = async ({ store }: { store: Store }) => {
       }
 
       // set reminded small item
-      localForage.setItem(store.$id + "-state", { ...newObj })
+      localForage.setItem(store.$id + "-state", { ...newObj }).then(
+        (_res) => {},
+        (_err) => {
+          toast("Error occur when saing file to store.", {
+            type: "error",
+          })
+        }
+      )
     })
   }
 }
@@ -101,5 +129,3 @@ app.use(Vue3Toastify, {
 router.isReady().then(() => {
   app.mount("#app")
 })
-
-
