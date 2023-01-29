@@ -211,16 +211,10 @@ const onImageClicked = () => {
       <div
         @click="onPageChange('right')"
         class="absolute h-full w-[3rem] md:w-[4rem] left-0 top-0 hover:bg-[rgba(112,112,112,0.1)] cursor-pointer"
-        :class="{
-          hidden: imgClicked,
-        }"
       ></div>
       <div
         @click="onPageChange('left')"
         class="absolute h-full w-[3rem] md:w-[4rem] right-0 top-0 hover:bg-[rgba(112,112,112,0.1)] cursor-pointer"
-        :class="{
-          hidden: imgClicked,
-        }"
       ></div>
     </div>
 
