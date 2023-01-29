@@ -17,7 +17,7 @@ const folders = computed(() => {
   }
 })
 
-const isEditing = ref<boolean>(false)
+const isFullScreen = ref<boolean>(false)
 
 const route = useRoute()
 const router = useRouter()
@@ -25,6 +25,17 @@ const { toggle } = useSideBar()
 
 const goHome = () => {
   router.push("/")
+}
+
+const onFullscreenClick = () => {
+  isFullScreen.value = true
+  document.documentElement.requestFullscreen()
+}
+
+const onExitFullscreenClick = () => {
+  isFullScreen.value = false
+
+  document.exitFullscreen()
 }
 </script>
 
@@ -50,17 +61,24 @@ const goHome = () => {
       <div v-if="route.params.name" class="mx-2 font-normal text-gray-500">
         /
       </div>
-      <div v-if="!isEditing" class="text-ellipsis overflow-hidden">
+      <div class="text-ellipsis overflow-hidden">
         {{ route.params.name }}
       </div>
-      <input v-if="isEditing" />
-
-      <!-- <IconButton
-        name="edit"
-        class="cursor-pointer ml-2"
-        icon-class-name="w-6 h-6 text-black"
-      /> -->
     </div>
+    <IconButton
+      v-if="!isFullScreen"
+      @click="onFullscreenClick"
+      name="fullscreen"
+      class="cursor-pointer ml-auto mr-2 md:mr-0"
+      icon-class-name="w-6 h-6 text-black"
+    />
+    <IconButton
+      v-if="isFullScreen"
+      @click="onExitFullscreenClick"
+      name="exitFullscreen"
+      class="cursor-pointer ml-auto mr-2 md:mr-0"
+      icon-class-name="w-6 h-6 text-black"
+    />
   </div>
   <SideBar :routes="routes" :folders="folders" />
 </template>
