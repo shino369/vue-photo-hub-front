@@ -97,6 +97,7 @@ app.use(Vue3Toastify, {
   theme: "dark",
   closeOnClick: true,
 } as ToastContainerOptions)
+
 router.isReady().then(() => {
   app.mount("#app")
 })

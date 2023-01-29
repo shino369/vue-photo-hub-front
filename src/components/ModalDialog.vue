@@ -31,7 +31,7 @@ watch(
     <!--backdrop area-->
     <div
       @click="modal.type === 'popup' && modalStore.close()"
-      :class="`fixed w-full h-full top-0 left-0 ${
+      :class="`fixed w-full h-full top-0 left-0 min-h-screen ${
         modal.type === 'modal'
           ? ' bg-[rgba(0,0,0,0.9)]'
           : ' bg-[rgba(0,0,0,0.5)]'

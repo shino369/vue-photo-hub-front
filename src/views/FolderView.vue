@@ -47,6 +47,7 @@ onMounted(() => {
     // here use rxjs to observe if ready.
     subscribeRehydrate = rehydrate.subscribe((ready) => {
       if (ready) {
+   
         init(route.params.name as string)
       }
     })
@@ -59,11 +60,12 @@ onUnmounted(() => {
   if (subscribeRehydrate) {
     subscribeRehydrate.unsubscribe()
   }
+  modal.close()
 })
 
 const init = (folderName: string) => {
   isfolderExist.value = folderStore.checkFolderExist(
-    route.params.name as string
+    folderName
   )
 
   if (isfolderExist.value) {
@@ -80,6 +82,7 @@ onBeforeRouteUpdate(async (to, from) => {
     // update folder to store
     fileList.value = []
     clearSelected()
+    modal.close()
     init(to.params.name as string)
   }
 })
