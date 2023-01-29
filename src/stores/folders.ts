@@ -190,6 +190,27 @@ export const useFolderStore = defineStore("folders", () => {
     return { data: [], size: 0 }
   }
 
+  const getFileByIndex = (folderName: string, index: number) => {
+    try {
+      if (!folders.value[folderName]) {
+        throw new Error(ERROR.FOLDER_NOT_FOUND)
+      }
+
+      const file = folders.value[folderName][index]
+
+      if (!file) {
+        throw new Error(ERROR.FILE_NOT_FOUND)
+      }
+
+      return file.file
+    } catch (e) {
+      const err = (e as Error).message
+      // show toast
+      showError(err)
+    }
+    return undefined
+  }
+
   const getFolderList = () => {
     try {
       const list = Object.keys(folders.value).sort()
@@ -372,5 +393,6 @@ export const useFolderStore = defineStore("folders", () => {
     renameFile,
     renameFolder,
     checkFolderExist,
+    getFileByIndex,
   }
 })

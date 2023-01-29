@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useFolderStore } from "@/stores/folders"
 import { useModal } from "@/stores/modal"
 import type { FileObj } from "@/types"
 import { generateURL } from "@/utils/commonUtils"
 import { computed, ref, shallowRef } from "vue"
+import { useRoute } from "vue-router"
 import ImageViewer from "./ImageViewer.vue"
 
 interface Props {
@@ -16,6 +18,8 @@ const interval = ref()
 const count = ref<number>(0)
 
 const modal = useModal()
+const folderStore = useFolderStore()
+const route = useRoute()
 
 const emit = defineEmits<{
   (e: "initSelect", value: string): void
@@ -77,16 +81,21 @@ const handleOnClick = (fileName: string) => {
 }
 
 const onModalOpen = (file: FileObj) => {
-  modal.open({
+  const index = folderStore.checkExist(route.params.name as string, file.file.name)
+  if(index > -1) {
+    modal.open({
     detail: {
       header: file.file.name,
-      content: file,
+      content: index,
     },
     component: shallowRef(ImageViewer),
     onClose: () => {
     },
     type: 'modal'
   })
+  }
+
+
 }
 </script>
 
