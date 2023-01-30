@@ -111,6 +111,11 @@ const indexDbPlugin = async ({ store }: { store: Store }) => {
           })
         }
       )
+
+      // for empty data in indexeddb
+      if (!rehydrate.getValue()) {
+        rehydrate.next(true)
+      }
     })
   }
 }
